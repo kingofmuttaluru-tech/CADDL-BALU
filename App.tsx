@@ -48,7 +48,9 @@ const App: React.FC = () => {
             microbiology: [],
             parasitology: [
                { testName: 'Fecal Exam (Direct)', resultValue: 'Strongyle eggs (+)', unit: '-', normalRange: 'Nil' }
-            ]
+            ],
+            // Fix: Add missing milkExamination property to match CategorizedTests interface
+            milkExamination: []
           }
         }
       ];

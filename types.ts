@@ -14,6 +14,7 @@ export interface CategorizedTests {
   biochemistry: LabTestEntry[];
   microbiology: LabTestEntry[];
   parasitology: LabTestEntry[];
+  milkExamination: LabTestEntry[];
 }
 
 export interface DiagnosticReport {

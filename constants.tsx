@@ -68,13 +68,21 @@ export const MASTER_TEST_LIST: MasterTest[] = [
   { category: 'microbiology', name: 'Gram Stain', unit: '-', normalRange: 'Observation' },
   { category: 'microbiology', name: 'Culture & Sensitivity', unit: '-', normalRange: 'Observation' },
   { category: 'microbiology', name: 'Acid Fast Staining (AFB)', unit: '-', normalRange: 'Negative' },
-  { category: 'microbiology', name: 'California Mastitis Test (CMT)', unit: '-', normalRange: 'Negative' },
+  
+  // MILK EXAMINATION
+  { category: 'milkExamination', name: 'California Mastitis Test (CMT)', unit: '-', normalRange: 'Negative' },
+  { category: 'milkExamination', name: 'Milk pH', unit: 'pH', normalRange: '6.4 - 6.7' },
+  { category: 'milkExamination', name: 'Somatic Cell Count (SCC)', unit: 'cells/mL', normalRange: '< 2,00,000' },
+  { category: 'milkExamination', name: 'Milk Culture', unit: '-', normalRange: 'No Growth' },
   
   // Parasitology
   { category: 'parasitology', name: 'Fecal Exam (Direct)', unit: '-', normalRange: 'Nil' },
   { category: 'parasitology', name: 'Fecal Exam (Sedimentation)', unit: '-', normalRange: 'Nil' },
+  { category: 'parasitology', name: 'Fecal Exam (Floatation)', unit: '-', normalRange: 'Nil' },
   { category: 'parasitology', name: 'Blood Smear (Hemoprotozoa)', unit: '-', normalRange: 'Negative' },
-  { category: 'parasitology', name: 'Skin Scraping (Mites)', unit: '-', normalRange: 'Nil' }
+  { category: 'parasitology', name: 'Blood Smear (Morphology)', unit: '-', normalRange: 'Normal' },
+  { category: 'parasitology', name: 'Skin Scraping (Mites)', unit: '-', normalRange: 'Nil' },
+  { category: 'parasitology', name: 'Skin Scraping (Fungal)', unit: '-', normalRange: 'Nil' }
 ];
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -82,5 +90,6 @@ export const CATEGORY_LABELS: Record<string, string> = {
   pathology: 'PATHOLOGY (GROSS/HISTO)',
   biochemistry: 'BIOCHEMISTRY',
   microbiology: 'MICROBIOLOGY',
-  parasitology: 'PARASITOLOGY'
+  parasitology: 'PARASITOLOGY (FECAL/BLOOD SMEAR/SKIN)',
+  milkExamination: 'MILK EXAMINATION / MASTITIS PROFILE'
 };

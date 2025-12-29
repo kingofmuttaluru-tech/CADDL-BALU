@@ -31,7 +31,8 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
       pathology: [],
       biochemistry: [],
       microbiology: [],
-      parasitology: []
+      parasitology: [],
+      milkExamination: []
     }
   });
 
