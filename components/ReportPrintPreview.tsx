@@ -28,7 +28,7 @@ const RepeatingHeader: React.FC<{ report: DiagnosticReport }> = ({ report }) => 
         <p className="text-[16pt] md:text-[22px] font-black text-black uppercase tracking-[0.05em] mb-1 leading-tight">
           {DEPT_NAME}
         </p>
-        <h1 className="text-[16pt] md:text-[20px] font-black text-black uppercase leading-tight tracking-tight mb-2">
+        <h1 className="text-[14pt] md:text-[16px] font-black text-black uppercase leading-tight tracking-tight mb-2">
           {LAB_NAME}
         </h1>
         <p className="text-[10pt] md:text-[14px] font-bold text-gray-800 border-t border-gray-200 pt-1 w-full max-w-2xl">
