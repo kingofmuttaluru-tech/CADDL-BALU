@@ -5,6 +5,8 @@ export const LAB_NAME = "CONSTITUENCY ANIMAL DISEASE DIAGNOSTIC LABORATORY (CADD
 export const LAB_LOCATION = "ALLAGADDA, Nandyal Dist., Andhra Pradesh";
 export const ISO_CERT = "ISO 9001:2015 CERTIFIED";
 export const NABL_CERT = "NABL ACCREDITED LABORATORY";
+export const GOVT_NAME = "Government of Andhra Pradesh";
+export const DEPT_NAME = "Department of Animal Husbandry";
 
 export const SPECIES_LIST = [
   'Bovine (Cow/Buffalo)',
