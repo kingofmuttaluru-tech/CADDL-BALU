@@ -124,15 +124,15 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
       {/* Header Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="col-span-full border-b pb-2">
-          <h3 className="font-bold text-emerald-800 uppercase text-sm tracking-wider">Farmer & Animal Information</h3>
+          <h3 className="font-bold text-blue-800 uppercase text-sm tracking-wider">Farmer & Animal Information</h3>
         </div>
         <div className="space-y-1">
           <label className="text-xs font-bold text-gray-500 uppercase">Farmer Name</label>
-          <input required type="text" name="farmerName" value={formData.farmerName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+          <input required type="text" name="farmerName" value={formData.farmerName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
         </div>
         <div className="space-y-1 col-span-2">
           <label className="text-xs font-bold text-gray-500 uppercase">Farmer Address</label>
-          <input type="text" name="farmerAddress" value={formData.farmerAddress} onChange={handleChange} placeholder="Village, Mandal, District" className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-emerald-500 outline-none transition-all" />
+          <input type="text" name="farmerAddress" value={formData.farmerAddress} onChange={handleChange} placeholder="Village, Mandal, District" className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
         </div>
         <div className="space-y-1">
           <label className="text-xs font-bold text-gray-500 uppercase">Species</label>
@@ -173,7 +173,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
       {/* Investigations */}
       <div className="space-y-8">
         <div className="col-span-full border-b pb-2 flex justify-between items-center">
-          <h3 className="font-bold text-emerald-800 uppercase text-sm tracking-wider">Laboratory Investigations</h3>
+          <h3 className="font-bold text-blue-800 uppercase text-sm tracking-wider">Laboratory Investigations</h3>
         </div>
 
         {Object.keys(CATEGORY_LABELS).map((catKey) => (
@@ -186,7 +186,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                   <button 
                     type="button"
                     onClick={() => bulkAddByCategory('clinicalPathology')}
-                    className="text-[10px] font-black bg-emerald-700 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition-all shadow-sm uppercase tracking-widest"
+                    className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
                   >
                     Select All CBP
                   </button>
@@ -197,28 +197,28 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'LFT')}
-                      className="text-[10px] font-black bg-emerald-700 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
                     >
                       + LFT
                     </button>
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'RFT')}
-                      className="text-[10px] font-black bg-emerald-700 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
                     >
                       + RFT
                     </button>
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'ELECTROLYTES')}
-                      className="text-[10px] font-black bg-emerald-700 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
                     >
                       + ELECTROLYTES
                     </button>
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'MINERALS')}
-                      className="text-[10px] font-black bg-emerald-700 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
                     >
                       + MINERALS
                     </button>
@@ -226,7 +226,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                 )}
 
                 <select 
-                  className="text-[10px] p-1.5 rounded-lg border border-slate-300 bg-white font-bold text-slate-600 outline-none focus:ring-1 focus:ring-emerald-500"
+                  className="text-[10px] p-1.5 rounded-lg border border-slate-300 bg-white font-bold text-slate-600 outline-none focus:ring-1 focus:ring-blue-500"
                   onChange={(e) => {
                     if (e.target.value !== "") addTest(catKey, parseInt(e.target.value));
                     e.target.value = "";
@@ -248,7 +248,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
               {(formData.categorizedResults as any)[catKey].map((entry: LabTestEntry, idx: number) => (
                 <div key={idx} className="flex flex-wrap items-center gap-4 bg-white p-3 rounded-lg border shadow-sm group">
                   <div className="flex-1 min-w-[200px]">
-                    <span className="text-xs font-bold text-emerald-800 uppercase">{entry.testName}</span>
+                    <span className="text-xs font-bold text-blue-800 uppercase">{entry.testName}</span>
                   </div>
                   <div className="w-32">
                     <input 
@@ -257,7 +257,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                       placeholder="Result" 
                       value={entry.resultValue}
                       onChange={(e) => updateTestResult(catKey, idx, e.target.value)}
-                      className="w-full p-1.5 border rounded text-sm text-center font-bold focus:border-emerald-500 outline-none transition-all"
+                      className="w-full p-1.5 border rounded text-sm text-center font-bold focus:border-blue-500 outline-none transition-all"
                     />
                   </div>
                   <div className="w-20 text-center text-xs text-gray-400 font-medium">
@@ -288,11 +288,11 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
       {/* Clinical Review Fields */}
       <div className="space-y-6">
         <div className="col-span-full border-b pb-2">
-          <h3 className="font-bold text-emerald-800 uppercase text-sm tracking-wider">Clinical Review & Authorization</h3>
+          <h3 className="font-bold text-blue-800 uppercase text-sm tracking-wider">Clinical Review & Authorization</h3>
         </div>
         
         <div className="space-y-1">
-          <label className="text-xs font-bold text-emerald-700 uppercase tracking-widest flex items-center">
+          <label className="text-xs font-bold text-blue-700 uppercase tracking-widest flex items-center">
             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3.005 3.005 0 013.75-2.906z"></path></svg>
             Concise Executive Summary (AI Generated)
           </label>
@@ -301,7 +301,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
             value={formData.conciseSummary}
             onChange={handleChange}
             rows={2}
-            className="w-full p-4 border rounded-xl text-sm bg-emerald-50/50 border-emerald-100 focus:ring-emerald-500 font-medium italic"
+            className="w-full p-4 border rounded-xl text-sm bg-blue-50/50 border-blue-100 focus:ring-blue-500 font-medium italic"
             placeholder="AI Summary will appear here..."
           />
         </div>
@@ -313,7 +313,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
             value={formData.otherRemarks}
             onChange={handleChange}
             rows={5}
-            className="w-full p-4 border rounded-xl text-sm bg-gray-50/50 focus:ring-emerald-500"
+            className="w-full p-4 border rounded-xl text-sm bg-gray-50/50 focus:ring-blue-500"
             placeholder="Detailed clinical analysis..."
           />
         </div>
@@ -335,7 +335,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
           type="button" 
           onClick={generateAIInsight}
           disabled={loadingAI}
-          className="px-6 py-2 border-2 border-emerald-600 text-emerald-700 rounded-xl hover:bg-emerald-50 font-black flex items-center space-x-2 disabled:opacity-50 transition-all uppercase text-xs tracking-widest"
+          className="px-6 py-2 border-2 border-blue-600 text-blue-700 rounded-xl hover:bg-blue-50 font-black flex items-center space-x-2 disabled:opacity-50 transition-all uppercase text-xs tracking-widest"
         >
           {loadingAI ? (
             <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
@@ -349,7 +349,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
           )}
           <span>Request Expert AI Diagnosis</span>
         </button>
-        <button type="submit" className="px-12 py-3 bg-emerald-800 text-white rounded-xl hover:bg-emerald-900 font-black shadow-lg transition-all active:scale-95 uppercase tracking-widest text-sm">
+        <button type="submit" className="px-12 py-3 bg-blue-800 text-white rounded-xl hover:bg-blue-900 font-black shadow-lg transition-all active:scale-95 uppercase tracking-widest text-sm">
           Generate Final Report
         </button>
       </div>

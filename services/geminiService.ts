@@ -10,6 +10,7 @@ export interface AIAnalysisResponse {
 /**
  * Generates expert clinical insights using Gemini AI with structured JSON output.
  * Provides a deep-dive analysis and a separate concise summary.
+ * The detailed analysis is augmented with the concise summary at the end to ensure long-term preservation in report remarks.
  */
 export const getAIInsights = async (report: Partial<DiagnosticReport>): Promise<AIAnalysisResponse> => {
   try {
@@ -65,9 +66,13 @@ export const getAIInsights = async (report: Partial<DiagnosticReport>): Promise<
     });
 
     const result = JSON.parse(response.text || '{}');
+    const detailed = result.detailedAnalysis || "No detailed analysis available.";
+    const summary = result.conciseSummary || "No summary available.";
+
     return {
-      detailedAnalysis: result.detailedAnalysis || "No detailed analysis available.",
-      conciseSummary: result.conciseSummary || "No summary available."
+      // Appending the summary to the detailed analysis as requested to ensure it's captured in the report's remarks
+      detailedAnalysis: `${detailed}\n\n--- CLINICAL SUMMARY ---\n${summary}`,
+      conciseSummary: summary
     };
   } catch (error) {
     console.error("Gemini AI Analysis Error:", error);

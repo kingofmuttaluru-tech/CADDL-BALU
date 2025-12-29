@@ -16,7 +16,7 @@ const ReportList: React.FC<ReportListProps> = ({ reports, onDelete }) => {
       <div className="space-y-4">
         <button 
           onClick={() => setSelectedReport(null)}
-          className="flex items-center text-emerald-700 font-medium hover:underline mb-4 no-print"
+          className="flex items-center text-blue-700 font-medium hover:underline mb-4 no-print"
         >
           <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -30,9 +30,9 @@ const ReportList: React.FC<ReportListProps> = ({ reports, onDelete }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden animate-fadeIn">
-      <div className="p-4 bg-emerald-50 border-b flex justify-between items-center">
-        <h2 className="font-bold text-emerald-800">Laboratory Archive</h2>
-        <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-1 rounded font-bold">{reports.length} Total</span>
+      <div className="p-4 bg-blue-50 border-b flex justify-between items-center">
+        <h2 className="font-bold text-blue-800">Laboratory Archive</h2>
+        <span className="text-xs bg-blue-200 text-blue-800 px-2 py-1 rounded font-bold">{reports.length} Total</span>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -62,7 +62,7 @@ const ReportList: React.FC<ReportListProps> = ({ reports, onDelete }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                   <button 
                     onClick={() => setSelectedReport(report)}
-                    className="inline-flex items-center px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors font-medium"
+                    className="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors font-medium"
                   >
                     View / Print
                   </button>

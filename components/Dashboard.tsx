@@ -10,28 +10,28 @@ interface DashboardProps {
 const Dashboard: React.FC<DashboardProps> = ({ reports }) => {
   const stats = [
     { label: 'Total Reports', value: reports.length, color: 'bg-blue-500' },
-    { label: 'Recent (7 Days)', value: reports.filter(r => new Date(r.dateOfReport) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length, color: 'bg-emerald-500' },
-    { label: 'Bovine Cases', value: reports.filter(r => r.species === 'Bovine').length, color: 'bg-amber-500' },
-    { label: 'Caprine/Ovine', value: reports.filter(r => r.species === 'Caprine' || r.species === 'Ovine').length, color: 'bg-indigo-500' },
+    { label: 'Recent (7 Days)', value: reports.filter(r => new Date(r.dateOfReport) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length, color: 'bg-blue-600' },
+    { label: 'Bovine Cases', value: reports.filter(r => r.species === 'Bovine').length, color: 'bg-indigo-500' },
+    { label: 'Caprine/Ovine', value: reports.filter(r => r.species === 'Caprine' || r.species === 'Ovine').length, color: 'bg-sky-500' },
   ];
 
   return (
     <div className="space-y-8 animate-fadeIn">
       {/* Accreditation Banner */}
-      <div className="bg-gradient-to-r from-emerald-800 to-teal-700 p-6 rounded-2xl shadow-xl text-white flex flex-col md:flex-row justify-between items-center border border-emerald-600/30">
+      <div className="bg-gradient-to-r from-blue-800 to-indigo-700 p-6 rounded-2xl shadow-xl text-white flex flex-col md:flex-row justify-between items-center border border-blue-600/30">
         <div className="flex items-center space-x-4 mb-4 md:mb-0">
           <div className="bg-white/10 p-3 rounded-full border border-white/20 backdrop-blur-sm">
-            <svg className="w-8 h-8 text-emerald-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
             </svg>
           </div>
           <div>
             <h2 className="text-xl font-black tracking-tight">{ISO_CERT}</h2>
-            <p className="text-emerald-100/80 text-sm font-medium tracking-wide uppercase">{NABL_CERT}</p>
+            <p className="text-blue-100/80 text-sm font-medium tracking-wide uppercase">{NABL_CERT}</p>
           </div>
         </div>
         <div className="flex space-x-2">
-          <span className="bg-emerald-900/40 px-4 py-2 rounded-lg text-xs font-black border border-emerald-400/20 backdrop-blur-md uppercase tracking-widest">Official Certification 9001:2015</span>
+          <span className="bg-blue-900/40 px-4 py-2 rounded-lg text-xs font-black border border-blue-400/20 backdrop-blur-md uppercase tracking-widest">Official Certification 9001:2015</span>
         </div>
       </div>
 
@@ -71,7 +71,7 @@ const Dashboard: React.FC<DashboardProps> = ({ reports }) => {
                   <td className="py-4 text-gray-600 text-sm">{report.dateOfReport}</td>
                   <td className="py-4">
                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      report.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+                      report.status === 'Completed' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
                     }`}>
                       {report.status}
                     </span>
