@@ -36,10 +36,21 @@ export const getAIInsights = async (report: Partial<DiagnosticReport>): Promise<
       ${findingsText}
       
       Your task is to provide:
-      1. DETAILED ANALYSIS: A professional medical breakdown including clinical significance of abnormalities, a prioritized list of differential diagnoses (specifically highlighting endemic diseases in the Andhra Pradesh/Nandyal region), and targeted recommendations for treatment or further testing.
+      1. DETAILED ANALYSIS: A professional medical breakdown including clinical significance of abnormalities. 
+         Provide a prioritized list of differential diagnoses, specifically incorporating regional epidemiology of Andhra Pradesh and the Nandyal region. 
+         Consider the high prevalence of endemic diseases such as:
+         - Foot and Mouth Disease (FMD)
+         - Hemorrhagic Septicemia (HS)
+         - Black Quarter (BQ)
+         - Blue Tongue (specifically in Ovine/Caprine species)
+         - Peste des Petits Ruminants (PPR)
+         - Anthrax (regional hotspots)
+         - Trypanosomiasis and other Hemoprotozoan diseases.
+         Include targeted recommendations for treatment or further confirmatory testing based on regional diagnostic protocols.
+
       2. CONCISE SUMMARY: A 1-2 sentence executive summary of the most likely diagnosis and the immediate primary action required.
       
-      Tone: Professional, precise, and authoritative.
+      Tone: Professional, precise, and authoritative. Ensure the analysis is localized to the veterinary health landscape of South India.
     `;
 
     const response = await ai.models.generateContent({
@@ -53,7 +64,7 @@ export const getAIInsights = async (report: Partial<DiagnosticReport>): Promise<
           properties: {
             detailedAnalysis: {
               type: Type.STRING,
-              description: "Full medical analysis with significance, differentials, and recommendations."
+              description: "Full medical analysis with significance, regional differentials, and recommendations."
             },
             conciseSummary: {
               type: Type.STRING,
