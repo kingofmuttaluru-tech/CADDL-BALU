@@ -80,10 +80,10 @@ const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
   const ReportHeader = () => (
     <div className="text-center border-b-2 border-black pb-4 mb-4 pt-2">
       <div className="flex flex-col justify-center items-center mb-2">
-        <p className="text-[11pt] font-black text-black leading-tight tracking-widest">{GOVT_NAME}</p>
-        <p className="text-[11pt] font-black text-black leading-tight tracking-tight">{DEPT_NAME}</p>
+        <p className="text-[11pt] font-black text-blue-800 leading-tight tracking-widest">{GOVT_NAME}</p>
+        <p className="text-[11pt] font-black text-blue-800 leading-tight tracking-tight">{DEPT_NAME}</p>
       </div>
-      <h1 className="text-[14pt] font-black text-white bg-black px-6 py-2 inline-block uppercase tracking-tighter mb-2 shadow-sm">{LAB_NAME}</h1>
+      <h1 className="text-[14pt] font-black text-white bg-green-700 px-6 py-2 inline-block uppercase tracking-tighter mb-2 shadow-sm">{LAB_NAME}</h1>
       <p className="text-[10pt] font-extrabold text-black uppercase tracking-tight">{LAB_LOCATION}</p>
       
       <div className="flex justify-center space-x-8 mt-2">

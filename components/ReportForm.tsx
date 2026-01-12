@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { DiagnosticReport, Species, LabTestEntry, CategorizedTests } from '../types';
-import { SPECIES_LIST, MASTER_TEST_LIST, CATEGORY_LABELS, HOSPITAL_LIST, DOCTOR_LIST } from '../constants';
+import { SPECIES_LIST, MASTER_TEST_LIST, CATEGORY_LABELS, HOSPITAL_LIST, DOCTOR_LIST, GOVT_NAME, DEPT_NAME } from '../constants';
 import { getAIInsights } from '../services/geminiService';
 
 interface ReportFormProps {
@@ -124,86 +124,95 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-md border border-gray-100 animate-fadeIn space-y-10">
+    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-2xl border-2 border-black animate-fadeIn space-y-10 max-w-6xl mx-auto">
+      {/* Official Header in Form */}
+      <div className="text-center border-b-4 border-blue-900 pb-6 mb-8">
+        <h2 className="text-xl font-black text-blue-800 tracking-widest uppercase">{GOVT_NAME}</h2>
+        <h3 className="text-lg font-black text-blue-800 tracking-tight uppercase mb-4">{DEPT_NAME}</h3>
+        <div className="bg-green-700 text-white py-2 px-6 inline-block rounded-lg shadow-md">
+          <span className="font-black text-sm uppercase tracking-widest">New Laboratory Case Entry</span>
+        </div>
+      </div>
+
       {/* Header Info */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="col-span-full border-b pb-2">
-          <h3 className="font-bold text-blue-800 uppercase text-sm tracking-wider">Farmer & Animal Information</h3>
+        <div className="col-span-full border-b-2 border-black pb-2">
+          <h3 className="font-black text-blue-900 uppercase text-sm tracking-wider">Farmer & Animal Information</h3>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Farmer Name</label>
-          <input required type="text" name="farmerName" value={formData.farmerName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+          <label className="text-xs font-black text-black uppercase">Farmer Name</label>
+          <input required type="text" name="farmerName" value={formData.farmerName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Father / Husband Name</label>
-          <input required type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+          <label className="text-xs font-black text-black uppercase">Father / Husband Name</label>
+          <input required type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Hospital / VD Name</label>
-          <select name="hospitalName" value={formData.hospitalName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+          <label className="text-xs font-black text-black uppercase">Hospital / VD Name</label>
+          <select name="hospitalName" value={formData.hospitalName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold">
             {HOSPITAL_LIST.map(h => <option key={h} value={h}>{h}</option>)}
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Animal Name / Former Name</label>
-          <input type="text" name="animalName" value={formData.animalName} onChange={handleChange} placeholder="Optional" className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+          <label className="text-xs font-black text-blue-800 uppercase">Animal Name / Former Name</label>
+          <input type="text" name="animalName" value={formData.animalName} onChange={handleChange} placeholder="Required/Optional" className="w-full p-2.5 border-2 border-blue-800 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
         </div>
         <div className="space-y-1 col-span-2">
-          <label className="text-xs font-bold text-gray-500 uppercase">Farmer Address</label>
-          <input type="text" name="farmerAddress" value={formData.farmerAddress} onChange={handleChange} placeholder="Village, Mandal, District" className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+          <label className="text-xs font-black text-black uppercase">Farmer Address</label>
+          <input type="text" name="farmerAddress" value={formData.farmerAddress} onChange={handleChange} placeholder="Village, Mandal, District" className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Species</label>
-          <select name="species" value={formData.species} onChange={handleChange} className="w-full p-2.5 border rounded-lg">
+          <label className="text-xs font-black text-black uppercase">Species</label>
+          <select name="species" value={formData.species} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold">
             {SPECIES_LIST.map(s => <option key={s} value={s.split(' ')[0]}>{s}</option>)}
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Breed</label>
-          <input type="text" name="breed" value={formData.breed} onChange={handleChange} className="w-full p-2.5 border rounded-lg" />
+          <label className="text-xs font-black text-black uppercase">Breed</label>
+          <input type="text" name="breed" value={formData.breed} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold uppercase" />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Age</label>
-          <input type="text" name="age" value={formData.age} onChange={handleChange} placeholder="e.g. 5 Years" className="w-full p-2.5 border rounded-lg" />
+          <label className="text-xs font-black text-black uppercase">Age</label>
+          <input type="text" name="age" value={formData.age} onChange={handleChange} placeholder="e.g. 5 Years" className="w-full p-2.5 border-2 border-black rounded-lg font-bold uppercase" />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Sex</label>
-          <select name="sex" value={formData.sex} onChange={handleChange} className="w-full p-2.5 border rounded-lg">
+          <label className="text-xs font-black text-black uppercase">Sex</label>
+          <select name="sex" value={formData.sex} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold">
             <option>Male</option>
             <option>Female</option>
             <option>Unknown</option>
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Referring Doctor</label>
-          <select name="referringDoctor" value={formData.referringDoctor} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+          <label className="text-xs font-black text-black uppercase">Referring Doctor</label>
+          <select name="referringDoctor" value={formData.referringDoctor} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold">
             {DOCTOR_LIST.map(d => <option key={d} value={d}>{d}</option>)}
             <option value="Other">Other Doctor</option>
           </select>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Collection Date</label>
-          <input type="date" name="dateOfCollection" value={formData.dateOfCollection} onChange={handleChange} className="w-full p-2.5 border rounded-lg" />
+          <label className="text-xs font-black text-black uppercase">Collection Date</label>
+          <input type="date" name="dateOfCollection" value={formData.dateOfCollection} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold" />
         </div>
       </div>
 
       {/* Investigations */}
       <div className="space-y-8">
-        <div className="col-span-full border-b pb-2 flex justify-between items-center">
-          <h3 className="font-bold text-blue-800 uppercase text-sm tracking-wider">Laboratory Investigations</h3>
+        <div className="col-span-full border-b-2 border-black pb-2 flex justify-between items-center">
+          <h3 className="font-black text-blue-900 uppercase text-sm tracking-wider">Laboratory Investigations</h3>
         </div>
 
         {Object.keys(CATEGORY_LABELS).map((catKey) => (
-          <div key={catKey} className="bg-slate-50 p-6 rounded-xl border border-slate-200 shadow-inner">
+          <div key={catKey} className="bg-green-50 p-6 rounded-xl border-2 border-green-200 shadow-inner">
             <div className="flex flex-wrap justify-between items-center mb-4 gap-4">
-              <h4 className="font-black text-slate-700 text-xs tracking-tighter uppercase">{CATEGORY_LABELS[catKey]}</h4>
+              <h4 className="font-black text-black text-xs tracking-tighter uppercase">{CATEGORY_LABELS[catKey]}</h4>
               
               <div className="flex flex-wrap items-center gap-2">
                 {catKey === 'clinicalPathology' && (
                   <button 
                     type="button"
                     onClick={() => bulkAddByCategory('clinicalPathology')}
-                    className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
+                    className="text-[10px] font-black bg-green-700 text-white px-3 py-1.5 rounded-lg hover:bg-green-800 transition-all shadow-sm uppercase tracking-widest border border-black"
                   >
                     Select All CBP
                   </button>
@@ -214,28 +223,28 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'LFT')}
-                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
                     >
                       + LFT
                     </button>
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'RFT')}
-                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
                     >
                       + RFT
                     </button>
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'ELECTROLYTES')}
-                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
                     >
                       + ELECTROLYTES
                     </button>
                     <button 
                       type="button"
                       onClick={() => bulkAddByCategory('biochemistry', 'MINERALS')}
-                      className="text-[10px] font-black bg-blue-700 text-white px-3 py-1.5 rounded-lg hover:bg-blue-800 transition-all shadow-sm uppercase tracking-widest"
+                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
                     >
                       + MINERALS
                     </button>
@@ -243,7 +252,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                 )}
 
                 <select 
-                  className="text-[10px] p-1.5 rounded-lg border border-slate-300 bg-white font-bold text-slate-600 outline-none focus:ring-1 focus:ring-blue-500"
+                  className="text-[10px] p-1.5 rounded-lg border-2 border-black bg-white font-black text-black outline-none focus:ring-1 focus:ring-green-500"
                   onChange={(e) => {
                     if (e.target.value !== "") addTest(catKey, parseInt(e.target.value));
                     e.target.value = "";
@@ -263,9 +272,9 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
 
             <div className="space-y-3">
               {(formData.categorizedResults as any)[catKey].map((entry: LabTestEntry, idx: number) => (
-                <div key={idx} className="flex flex-wrap items-center gap-4 bg-white p-3 rounded-lg border shadow-sm group">
+                <div key={idx} className="flex flex-wrap items-center gap-4 bg-white p-3 rounded-lg border-2 border-black shadow-sm group">
                   <div className="flex-1 min-w-[200px]">
-                    <span className="text-xs font-bold text-blue-800 uppercase">{entry.testName}</span>
+                    <span className="text-xs font-black text-blue-900 uppercase">{entry.testName}</span>
                   </div>
                   <div className="w-32">
                     <input 
@@ -274,19 +283,19 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                       placeholder="Result" 
                       value={entry.resultValue}
                       onChange={(e) => updateTestResult(catKey, idx, e.target.value)}
-                      className="w-full p-1.5 border rounded text-sm text-center font-bold focus:border-blue-500 outline-none transition-all"
+                      className="w-full p-1.5 border-2 border-black rounded text-sm text-center font-black focus:border-green-600 outline-none transition-all"
                     />
                   </div>
-                  <div className="w-20 text-center text-xs text-gray-400 font-medium">
+                  <div className="w-20 text-center text-xs text-black font-black">
                     {entry.unit}
                   </div>
-                  <div className="w-32 text-[10px] text-gray-400 font-bold text-center border-l pl-2">
+                  <div className="w-32 text-[10px] text-green-700 font-black text-center border-l-2 border-black pl-2">
                     NORMAL: {entry.normalRange}
                   </div>
                   <button 
                     type="button"
                     onClick={() => removeTest(catKey, idx)}
-                    className="p-1 text-red-300 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                    className="p-1 text-black hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -295,7 +304,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                 </div>
               ))}
               {(formData.categorizedResults as any)[catKey].length === 0 && (
-                <p className="text-center py-4 text-xs text-slate-400 italic font-medium">No tests added to this section yet.</p>
+                <p className="text-center py-4 text-xs text-green-800 italic font-black">No tests added to this investigation section.</p>
               )}
             </div>
           </div>
@@ -304,12 +313,12 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
 
       {/* Clinical Review Fields */}
       <div className="space-y-6">
-        <div className="col-span-full border-b pb-2">
-          <h3 className="font-bold text-blue-800 uppercase text-sm tracking-wider">Clinical Review & Authorization</h3>
+        <div className="col-span-full border-b-2 border-black pb-2">
+          <h3 className="font-black text-blue-900 uppercase text-sm tracking-wider">Clinical Review & Authorization</h3>
         </div>
         
         <div className="space-y-1">
-          <label className="text-xs font-bold text-blue-700 uppercase tracking-widest flex items-center">
+          <label className="text-xs font-black text-blue-800 uppercase tracking-widest flex items-center">
             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3.005 3.005 0 013.75-2.906z"></path></svg>
             Concise Executive Summary (AI Generated)
           </label>
@@ -318,44 +327,44 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
             value={formData.conciseSummary}
             onChange={handleChange}
             rows={2}
-            className="w-full p-4 border rounded-xl text-sm bg-blue-50/50 border-blue-100 focus:ring-blue-500 font-medium italic"
-            placeholder="AI Summary will appear here..."
+            className="w-full p-4 border-2 border-blue-900 rounded-xl text-sm bg-blue-50 text-black focus:ring-green-500 font-bold italic"
+            placeholder="AI Summary will appear here after diagnostic request..."
           />
         </div>
 
         <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase tracking-widest">Detailed Pathologist Remarks & Recommendations</label>
+          <label className="text-xs font-black text-black uppercase tracking-widest">Detailed Pathologist Remarks & Recommendations</label>
           <textarea 
             name="otherRemarks"
             value={formData.otherRemarks}
             onChange={handleChange}
             rows={5}
-            className="w-full p-4 border rounded-xl text-sm bg-gray-50/50 focus:ring-blue-500"
-            placeholder="Detailed clinical analysis..."
+            className="w-full p-4 border-2 border-black rounded-xl text-sm bg-white text-black focus:ring-green-500 font-medium"
+            placeholder="Detailed clinical analysis and specific recommendations for the farmer..."
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Lab Technician Name</label>
-            <input type="text" name="labTechnicianName" value={formData.labTechnicianName} onChange={handleChange} className="w-full p-2.5 border rounded-lg" />
+            <label className="text-xs font-black text-black uppercase tracking-widest">Lab Technician Name</label>
+            <input type="text" name="labTechnicianName" value={formData.labTechnicianName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-black uppercase" />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Assistant Director Name</label>
-            <input type="text" name="assistantDirector" value={formData.assistantDirector} onChange={handleChange} className="w-full p-2.5 border rounded-lg" />
+            <label className="text-xs font-black text-black uppercase tracking-widest">Assistant Director Name</label>
+            <input type="text" name="assistantDirector" value={formData.assistantDirector} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-black uppercase" />
           </div>
         </div>
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-4 items-center justify-end border-t pt-8">
+      <div className="mt-10 flex flex-wrap gap-4 items-center justify-end border-t-2 border-black pt-8">
         <button 
           type="button" 
           onClick={generateAIInsight}
           disabled={loadingAI}
-          className="px-6 py-2 border-2 border-blue-600 text-blue-700 rounded-xl hover:bg-blue-50 font-black flex items-center space-x-2 disabled:opacity-50 transition-all uppercase text-xs tracking-widest"
+          className="px-6 py-2 border-4 border-green-700 text-green-700 rounded-xl hover:bg-green-700 hover:text-white font-black flex items-center space-x-2 disabled:opacity-50 transition-all uppercase text-xs tracking-widest shadow-lg"
         >
           {loadingAI ? (
-            <svg className="animate-spin h-4 w-4 mr-2" viewBox="0 0 24 24">
+            <svg className="animate-spin h-4 w-4 mr-2 text-green-700" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -366,8 +375,8 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
           )}
           <span>Request Expert AI Diagnosis</span>
         </button>
-        <button type="submit" className="px-12 py-3 bg-blue-800 text-white rounded-xl hover:bg-blue-900 font-black shadow-lg transition-all active:scale-95 uppercase tracking-widest text-sm">
-          Generate Final Report
+        <button type="submit" className="px-12 py-3 bg-blue-900 text-white rounded-xl hover:bg-black font-black shadow-2xl transition-all active:scale-95 uppercase tracking-widest text-sm border-2 border-black">
+          Finalize & Generate Report
         </button>
       </div>
     </form>

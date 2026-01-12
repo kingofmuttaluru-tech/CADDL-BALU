@@ -6,7 +6,7 @@ import ReportForm from './components/ReportForm';
 import ReportList from './components/ReportList';
 import ConsultationManager from './components/ConsultationManager';
 import Navbar from './components/Navbar';
-import { LAB_NAME, HOSPITAL_LIST } from './constants';
+import { LAB_NAME, HOSPITAL_LIST, GOVT_NAME, DEPT_NAME } from './constants';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<View>('dashboard');
@@ -92,13 +92,22 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="min-h-screen bg-blue-50 flex flex-col">
       <Navbar activeView={activeView} setActiveView={setActiveView} />
       
       <main className="flex-1 container mx-auto px-4 py-8">
-        <header className="mb-8 border-b pb-4">
-          <h1 className="text-2xl font-bold text-slate-800">{LAB_NAME}</h1>
-          <p className="text-slate-500 font-medium">Diagnostic Admin Portal - Allagadda</p>
+        <header className="mb-8 border-b-2 border-black pb-6 flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+          <div>
+            <h1 className="text-sm font-black text-blue-800 tracking-widest uppercase mb-1">{GOVT_NAME}</h1>
+            <h2 className="text-xs font-black text-blue-800 tracking-tight uppercase mb-4">{DEPT_NAME}</h2>
+            <div className="inline-block bg-green-700 text-white px-4 py-2 rounded shadow-lg border border-black">
+              <h3 className="text-xl font-black uppercase tracking-tighter">{LAB_NAME}</h3>
+            </div>
+          </div>
+          <div className="text-right hidden md:block">
+            <p className="text-xs font-black text-black uppercase tracking-widest">Diagnostic Admin Portal</p>
+            <p className="text-[10px] font-bold text-green-700 uppercase tracking-tighter">Authorized Laboratory Use Only</p>
+          </div>
         </header>
 
         {activeView === 'dashboard' && <Dashboard reports={reports} />}
@@ -119,8 +128,9 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="bg-white border-t py-4 text-center text-gray-500 text-sm no-print">
-        &copy; {new Date().getFullYear()} CADDL Allagadda. Official Veterinary Diagnostic Portal.
+      <footer className="bg-black text-white border-t-4 border-green-700 py-6 text-center text-sm no-print">
+        <p className="font-black uppercase tracking-widest">&copy; {new Date().getFullYear()} CADDL ALLAGADDA. OFFICIAL VETERINARY DIAGNOSTIC PORTAL.</p>
+        <p className="text-[10px] text-green-500 font-bold mt-1 uppercase">Department of Animal Husbandry, Government of Andhra Pradesh</p>
       </footer>
     </div>
   );
