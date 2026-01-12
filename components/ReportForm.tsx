@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { DiagnosticReport, Species, LabTestEntry, CategorizedTests } from '../types';
-import { SPECIES_LIST, MASTER_TEST_LIST, CATEGORY_LABELS } from '../constants';
+import { SPECIES_LIST, MASTER_TEST_LIST, CATEGORY_LABELS, HOSPITAL_LIST, DOCTOR_LIST } from '../constants';
 import { getAIInsights } from '../services/geminiService';
 
 interface ReportFormProps {
@@ -13,14 +13,17 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
   const [formData, setFormData] = useState<Partial<DiagnosticReport>>({
     id: Math.random().toString(36).substr(2, 9),
     farmerName: '',
+    fatherName: '',
     farmerAddress: '',
+    animalName: '',
+    hospitalName: HOSPITAL_LIST[0],
     dateOfCollection: new Date().toISOString().split('T')[0],
     dateOfReport: new Date().toISOString().split('T')[0],
     species: 'Bovine',
     age: '',
     sex: 'Female',
     breed: '',
-    referringDoctor: '',
+    referringDoctor: DOCTOR_LIST[0],
     labTechnicianName: 'S.BALARAJU',
     assistantDirector: 'DR.M.Y.VARAPRASAD',
     status: 'Completed',
@@ -131,6 +134,20 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
           <label className="text-xs font-bold text-gray-500 uppercase">Farmer Name</label>
           <input required type="text" name="farmerName" value={formData.farmerName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
         </div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase">Father / Husband Name</label>
+          <input required type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase">Hospital / VD Name</label>
+          <select name="hospitalName" value={formData.hospitalName} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            {HOSPITAL_LIST.map(h => <option key={h} value={h}>{h}</option>)}
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-gray-500 uppercase">Animal Name / Former Name</label>
+          <input type="text" name="animalName" value={formData.animalName} onChange={handleChange} placeholder="Optional" className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
+        </div>
         <div className="space-y-1 col-span-2">
           <label className="text-xs font-bold text-gray-500 uppercase">Farmer Address</label>
           <input type="text" name="farmerAddress" value={formData.farmerAddress} onChange={handleChange} placeholder="Village, Mandal, District" className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" />
@@ -159,15 +176,14 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
         </div>
         <div className="space-y-1">
           <label className="text-xs font-bold text-gray-500 uppercase">Referring Doctor</label>
-          <input type="text" name="referringDoctor" value={formData.referringDoctor} onChange={handleChange} placeholder="Name of VAS" className="w-full p-2.5 border rounded-lg" />
+          <select name="referringDoctor" value={formData.referringDoctor} onChange={handleChange} className="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+            {DOCTOR_LIST.map(d => <option key={d} value={d}>{d}</option>)}
+            <option value="Other">Other Doctor</option>
+          </select>
         </div>
         <div className="space-y-1">
           <label className="text-xs font-bold text-gray-500 uppercase">Collection Date</label>
           <input type="date" name="dateOfCollection" value={formData.dateOfCollection} onChange={handleChange} className="w-full p-2.5 border rounded-lg" />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-gray-500 uppercase">Report Date</label>
-          <input type="date" name="dateOfReport" value={formData.dateOfReport} onChange={handleChange} className="w-full p-2.5 border rounded-lg" />
         </div>
       </div>
 

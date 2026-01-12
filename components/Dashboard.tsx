@@ -1,11 +1,17 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { DiagnosticReport } from '../types';
-import { ISO_CERT, NABL_CERT } from '../constants';
+import { ISO_CERT, NABL_CERT, CATEGORY_LABELS } from '../constants';
+import { 
+  PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid
+} from 'recharts';
 
 interface DashboardProps {
   reports: DiagnosticReport[];
 }
+
+const COLORS = ['#1e40af', '#3b82f6', '#0ea5e9', '#6366f1', '#4f46e5', '#818cf8'];
 
 const Dashboard: React.FC<DashboardProps> = ({ reports }) => {
   const stats = [
@@ -14,6 +20,44 @@ const Dashboard: React.FC<DashboardProps> = ({ reports }) => {
     { label: 'Bovine Cases', value: reports.filter(r => r.species === 'Bovine').length, color: 'bg-indigo-500' },
     { label: 'Caprine/Ovine', value: reports.filter(r => r.species === 'Caprine' || r.species === 'Ovine').length, color: 'bg-sky-500' },
   ];
+
+  // Prepare Species Data for Pie Chart
+  const speciesData = useMemo(() => {
+    const counts: Record<string, number> = {};
+    reports.forEach(r => {
+      counts[r.species] = (counts[r.species] || 0) + 1;
+    });
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [reports]);
+
+  // Prepare Submission Trend Data (Last 7 Days)
+  const trendData = useMemo(() => {
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return d.toISOString().split('T')[0];
+    }).reverse();
+
+    return days.map(date => ({
+      date: new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      reports: reports.filter(r => r.dateOfReport === date).length
+    }));
+  }, [reports]);
+
+  // Prepare Test Volume Data
+  const testVolumeData = useMemo(() => {
+    return Object.keys(CATEGORY_LABELS).map(key => {
+      const totalTests = reports.reduce((acc, report) => {
+        const tests = (report.categorizedResults as any)[key];
+        return acc + (tests?.length || 0);
+      }, 0);
+      
+      return {
+        name: CATEGORY_LABELS[key].split(' ')[0], // Use first word as shorthand
+        count: totalTests
+      };
+    }).filter(d => d.count > 0);
+  }, [reports]);
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -35,6 +79,7 @@ const Dashboard: React.FC<DashboardProps> = ({ reports }) => {
         </div>
       </div>
 
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
           <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
@@ -51,8 +96,78 @@ const Dashboard: React.FC<DashboardProps> = ({ reports }) => {
         ))}
       </div>
 
+      {/* Laboratory Analytics Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Trend Visualization */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 className="text-sm font-black text-blue-800 uppercase tracking-widest mb-6">Daily Report Output (Last 7 Days)</h3>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                <Tooltip 
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ border: 'none', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                />
+                <Bar dataKey="reports" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Species Distribution */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+          <h3 className="text-sm font-black text-blue-800 uppercase tracking-widest mb-6">Case Mix by Species</h3>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={speciesData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  paddingAngle={5}
+                  dataKey="value"
+                >
+                  {speciesData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                   contentStyle={{ border: 'none', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 'bold' }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Test Volume Distribution */}
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+          <h3 className="text-sm font-black text-blue-800 uppercase tracking-widest mb-6">Investigation Volume by Category</h3>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart layout="vertical" data={testVolumeData} margin={{ left: 40 }}>
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f1f5f9" />
+                <XAxis type="number" hide />
+                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b', fontWeight: 'bold' }} width={120} />
+                <Tooltip 
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ border: 'none', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', fontSize: '12px' }}
+                />
+                <Bar dataKey="count" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Recent Activity Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-lg font-bold mb-4 text-gray-800">Recent Activity</h2>
+        <h2 className="text-lg font-bold mb-4 text-gray-800">Recent Diagnostic Entries</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

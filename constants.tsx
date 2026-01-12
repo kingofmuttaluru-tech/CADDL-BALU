@@ -6,7 +6,23 @@ export const LAB_LOCATION = "ALLAGADDA, Nandyal Dist., Andhra Pradesh";
 export const ISO_CERT = "ISO 9001:2015 CERTIFIED";
 export const NABL_CERT = "NABL ACCREDITED LABORATORY";
 export const GOVT_NAME = "Government of Andhra Pradesh";
-export const DEPT_NAME = "Department of Animal Husbandry";
+export const DEPT_NAME = "Department of Animal HusbandrY";
+
+export const HOSPITAL_LIST = [
+  'VD Peraipalle',
+  'VD P. Chinthakunta',
+  'VD Dornipadu',
+  'VD W. Kothapalli',
+  'VD Gundupapala'
+];
+
+export const DOCTOR_LIST = [
+  'Dr. Y Mahendra',
+  'Dr. D Srikala',
+  'Dr. D Chinna Babu',
+  'Dr. S. Naga Sailaja',
+  'Dr. M Sreenivasa Reddy'
+];
 
 export const SPECIES_LIST = [
   'Bovine (Cow/Buffalo)',

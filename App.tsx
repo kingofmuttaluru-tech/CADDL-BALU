@@ -6,7 +6,7 @@ import ReportForm from './components/ReportForm';
 import ReportList from './components/ReportList';
 import ConsultationManager from './components/ConsultationManager';
 import Navbar from './components/Navbar';
-import { LAB_NAME } from './constants';
+import { LAB_NAME, HOSPITAL_LIST } from './constants';
 
 const App: React.FC = () => {
   const [activeView, setActiveView] = useState<View>('dashboard');
@@ -23,7 +23,9 @@ const App: React.FC = () => {
         {
           id: '1',
           farmerName: 'Venkata Reddy',
+          fatherName: 'Late Nagabhushanam',
           farmerAddress: 'H.No: 4-12, Allagadda Village, Nandyal Dist.',
+          hospitalName: HOSPITAL_LIST[0],
           dateOfCollection: '2024-05-20',
           dateOfReport: '2024-05-21',
           species: 'Bovine',
@@ -49,7 +51,6 @@ const App: React.FC = () => {
             parasitology: [
                { testName: 'Fecal Exam (Direct)', resultValue: 'Strongyle eggs (+)', unit: '-', normalRange: 'Nil' }
             ],
-            // Fix: Add missing milkExamination property to match CategorizedTests interface
             milkExamination: []
           }
         }

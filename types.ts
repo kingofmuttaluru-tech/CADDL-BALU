@@ -20,7 +20,10 @@ export interface CategorizedTests {
 export interface DiagnosticReport {
   id: string;
   farmerName: string;
+  fatherName: string;
   farmerAddress: string;
+  hospitalName: string;
+  animalName?: string; // For "Former Name" or "Alternative Name"
   dateOfCollection: string;
   dateOfReport: string;
   species: Species;

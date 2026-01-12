@@ -1,6 +1,7 @@
 
 import React, { useRef } from 'react';
 import { DiagnosticReport, LabTestEntry } from '../types';
+import { QRCodeSVG } from 'qrcode.react';
 import { 
   LAB_NAME, 
   LAB_LOCATION, 
@@ -8,91 +9,12 @@ import {
   NABL_CERT, 
   CATEGORY_LABELS, 
   GOVT_NAME, 
-  DEPT_NAME 
+  DEPT_NAME
 } from '../constants';
 
 interface ReportPrintPreviewProps {
   report: DiagnosticReport;
 }
-
-/**
- * Repeating Header Component - Contains the official letterhead and patient/farmer demographics.
- * Uses standard CSS display: table-header-group for cross-page repetition.
- */
-const RepeatingHeader: React.FC<{ report: DiagnosticReport }> = ({ report }) => {
-  return (
-    <div className="w-full bg-white flex flex-col items-center pt-4">
-      <div className="flex flex-col items-center w-full">
-        <p className="text-[14pt] md:text-[18px] font-black text-black uppercase tracking-[0.05em] mb-0 leading-tight text-center">
-          {GOVT_NAME}
-        </p>
-        <p className="text-[14pt] md:text-[18px] font-black text-black uppercase tracking-[0.05em] mb-1 leading-tight text-center">
-          {DEPT_NAME}
-        </p>
-        <h1 className="text-[12pt] md:text-[14px] font-black text-black uppercase leading-tight tracking-tight mb-2 text-center">
-          {LAB_NAME}
-        </h1>
-        <p className="text-[9pt] md:text-[12px] font-bold text-gray-800 border-t border-gray-200 pt-1 w-full max-w-2xl text-center">
-          {LAB_LOCATION}
-        </p>
-      </div>
-      
-      <div className="flex justify-between items-center mt-3 mb-3 px-6 w-full max-w-4xl">
-        <div className="bg-black text-white text-[8px] font-black px-3 py-1 rounded-full shadow-sm uppercase tracking-wider">{ISO_CERT}</div>
-        <div className="bg-white text-black text-[8px] font-black px-3 py-1 rounded-full border-2 border-black shadow-sm uppercase tracking-wider">{NABL_CERT}</div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-y-1.5 gap-x-6 text-[10px] border-t-2 border-b-4 border-black py-2.5 text-left w-full bg-gray-50/50 px-4 mb-4">
-        <div className="flex items-start">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Farmer Name:</span>
-          <span className="font-bold text-black uppercase">{report.farmerName}</span>
-        </div>
-        <div className="flex items-start">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Lab Ref ID:</span>
-          <span className="font-mono text-black font-bold uppercase tracking-tighter">CADDL/AGD/{report.id.slice(0, 6)}</span>
-        </div>
-        <div className="flex items-start col-span-1">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Farmer Address:</span>
-          <span className="font-medium text-gray-700 uppercase leading-tight">{report.farmerAddress || 'Not Provided'}</span>
-        </div>
-        <div className="flex items-start">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Referring Doctor:</span>
-          <span className="font-bold text-black uppercase tracking-tight">{report.referringDoctor || 'Field VAS'}</span>
-        </div>
-        <div className="flex items-start">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Species/Breed:</span>
-          <span className="font-bold text-black">{report.species} ({report.breed})</span>
-        </div>
-        <div className="flex items-start">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Age / Sex:</span>
-          <span className="font-bold text-black uppercase">{report.age} / {report.sex}</span>
-        </div>
-        <div className="flex items-start">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Collection Date:</span>
-          <span className="text-gray-800 font-medium">{report.dateOfCollection}</span>
-        </div>
-        <div className="flex items-start">
-          <span className="font-bold w-28 text-gray-500 uppercase text-[8px]">Report Date:</span>
-          <span className="text-black font-black">{report.dateOfReport}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/**
- * Repeating Footer for continuity and identification
- * Uses standard CSS display: table-footer-group for cross-page repetition.
- */
-const RepeatingFooter: React.FC<{ report: DiagnosticReport }> = ({ report }) => {
-  return (
-    <div className="w-full border-t border-gray-200 mt-4 py-2 flex justify-between items-center text-[8px] text-gray-400 font-bold uppercase tracking-widest px-4">
-      <span>CADDL Allagadda - Official Diagnostic Report</span>
-      <span>Farmer: {report.farmerName} | ID: {report.id.slice(0,6)}</span>
-      <span className="print-page-number">Page </span>
-    </div>
-  );
-};
 
 const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
   const reportRef = useRef<HTMLDivElement>(null);
@@ -101,38 +23,27 @@ const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
     window.print();
   };
 
-  const handleShareEmail = () => {
-    const subject = encodeURIComponent(`CADDL Laboratory Report: ${report.farmerName} - ${report.species} (ID: ${report.id.slice(0,6)})`);
-    const body = encodeURIComponent(
-      `Official Diagnostic Report\n` +
-      `---------------------------\n` +
-      `Laboratory: ${LAB_NAME}, Allagadda\n` +
-      `Farmer: ${report.farmerName}\n` +
-      `Species/Breed: ${report.species} (${report.breed})\n` +
-      `Collection Date: ${report.dateOfCollection}\n\n` +
-      `Clinical Summary:\n${report.conciseSummary}\n\n` +
-      `Please find the full official diagnostic report for your records. This is an ISO/NABL certified report generated from CADDL Allagadda.`
-    );
-    window.location.href = `mailto:?subject=${subject}&body=${body}`;
-  };
-
   const handleDownloadPDF = () => {
     const element = reportRef.current;
     if (!element) return;
 
-    // Species name in PDF filename as requested
-    const filename = `Report_${report.species.toUpperCase()}_${report.farmerName.replace(/\s+/g, '_')}.pdf`;
+    // Standard A4 width in pixels for high-quality capture
+    const captureWidth = 800; 
+
+    const filename = `CADDL_REPORT_${report.species.toUpperCase()}_${report.farmerName.replace(/\s+/g, '_')}.pdf`;
 
     const opt = {
-      margin: [10, 10, 10, 10], 
+      margin: 10,
       filename: filename,
-      image: { type: 'jpeg', quality: 1.0 },
+      image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
-        scale: 2,
+        scale: 2, 
         useCORS: true, 
         letterRendering: true,
-        scrollX: 0,
+        logging: false,
+        width: captureWidth, 
         scrollY: 0,
+        scrollX: 0,
         backgroundColor: '#ffffff'
       },
       jsPDF: { 
@@ -141,9 +52,10 @@ const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
         orientation: 'portrait',
         compress: true
       },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      pagebreak: { mode: ['css', 'legacy'], avoid: '.avoid-break' }
     };
 
+    // Use html2pdf
     // @ts-ignore
     html2pdf().set(opt).from(element).save();
   };
@@ -151,117 +63,156 @@ const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
   const checkAbnormal = (value: string, range: string): boolean => {
     if (!value || !range) return false;
     const cleanValue = value.trim().toLowerCase();
-    const cleanRange = range.trim().toLowerCase();
-    if (['observation', 'normal', 'variable', 'nil', '-'].includes(cleanRange) && cleanValue === cleanRange) return false;
-    if (cleanRange === 'observation' || cleanRange === 'normal') return false;
+    if (['observation', 'normal', 'nil', 'negative'].includes(cleanValue)) return false;
 
-    const negatives = ['nil', 'negative', 'no growth', 'not detected', 'absent'];
-    const positives = ['positive', 'detected', 'found', 'seen', 'presence', '+', '++'];
-
-    const rangeIsNegative = negatives.some(n => cleanRange.includes(n));
-    if (rangeIsNegative) {
-      if (positives.some(p => cleanValue.includes(p))) return true;
-      if (!negatives.some(n => cleanValue.includes(n)) && /\d/.test(cleanValue)) return true;
-      return false;
-    }
-
-    const rangeMatch = cleanRange.match(/([\d.]+)\s*-\s*([\d.]+)/);
+    const rangeMatch = range.trim().toLowerCase().match(/([\d.]+)\s*-\s*([\d.]+)/);
     if (rangeMatch) {
       const min = parseFloat(rangeMatch[1]);
       const max = parseFloat(rangeMatch[2]);
-      const valMatch = cleanValue.match(/[\d.]+/);
-      if (valMatch) {
-        const numValue = parseFloat(valMatch[0]);
-        if (!isNaN(numValue)) return numValue < min || numValue > max;
-      }
+      const numValue = parseFloat(cleanValue.match(/[\d.]+/)?.[0] || '');
+      if (!isNaN(numValue)) return numValue < min || numValue > max;
     }
 
-    const ineqMatch = cleanRange.match(/([<>]=?)\s*([\d,.]+)/);
-    if (ineqMatch) {
-      const op = ineqMatch[1];
-      const threshold = parseFloat(ineqMatch[2].replace(/,/g, ''));
-      const valMatch = cleanValue.match(/[\d.]+/);
-      if (valMatch) {
-        const numValue = parseFloat(valMatch[0].replace(/,/g, ''));
-        if (!isNaN(numValue)) {
-          if (op === '<') return numValue >= threshold;
-          if (op === '<=') return numValue > threshold;
-          if (op === '>') return numValue <= threshold;
-          if (op === '>=') return numValue < threshold;
-        }
-      }
-    }
-    return false;
+    const positives = ['positive', 'detected', 'seen', 'found', '+', '++', '+++'];
+    return positives.some(p => cleanValue.includes(p));
   };
 
+  const ReportHeader = () => (
+    <div className="text-center border-b-2 border-black pb-4 mb-4 pt-2">
+      <div className="flex flex-col justify-center items-center mb-2">
+        <p className="text-[11pt] font-black text-black leading-tight tracking-widest">{GOVT_NAME}</p>
+        <p className="text-[11pt] font-black text-black leading-tight tracking-tight">{DEPT_NAME}</p>
+      </div>
+      <h1 className="text-[14pt] font-black text-white bg-black px-6 py-2 inline-block uppercase tracking-tighter mb-2 shadow-sm">{LAB_NAME}</h1>
+      <p className="text-[10pt] font-extrabold text-black uppercase tracking-tight">{LAB_LOCATION}</p>
+      
+      <div className="flex justify-center space-x-8 mt-2">
+        <span className="text-[9pt] font-black uppercase text-slate-800 border-x border-black px-4">{ISO_CERT}</span>
+        <span className="text-[9pt] font-black uppercase text-slate-800 border-x border-black px-4">{NABL_CERT}</span>
+      </div>
+    </div>
+  );
+
   return (
-    <div className="space-y-6 pb-20">
-      <div className="flex justify-between items-center no-print bg-white p-4 rounded-xl shadow-sm border border-gray-100 max-w-4xl mx-auto">
-        <div>
-          <h3 className="font-bold text-gray-800 text-sm">Laboratory Report Preview</h3>
-          <p className="text-[10px] text-gray-500 text-black font-semibold italic uppercase tracking-wider">A4 NABL Format (Header Repeating on Every Page)</p>
+    <div className="flex flex-col items-center space-y-6 pb-20">
+      {/* Action Header - Screen Only */}
+      <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 no-print bg-white p-6 rounded-3xl shadow-2xl border-t-4 border-blue-600 sticky top-20 z-20 w-full max-w-5xl">
+        <div className="flex-1">
+          <h2 className="font-black text-slate-900 text-xl uppercase tracking-tighter">Final Diagnostic Report</h2>
+          <p className="text-[11px] text-blue-600 font-extrabold uppercase tracking-[0.2em]">Authorized Veterinary Document</p>
         </div>
-        <div className="flex space-x-3">
-          <button onClick={handleShareEmail} className="flex items-center space-x-2 bg-white text-gray-700 px-4 py-2.5 rounded-lg hover:bg-gray-50 transition-colors font-bold border border-gray-200 uppercase text-[10px] tracking-widest">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-            <span>Share Email</span>
-          </button>
-          <button onClick={handlePrint} className="flex items-center space-x-2 bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg hover:bg-gray-200 transition-colors font-bold border border-gray-200 uppercase text-[10px] tracking-widest">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+        <div className="flex space-x-4">
+          <button 
+            onClick={handlePrint} 
+            className="flex items-center space-x-3 bg-slate-100 text-slate-800 px-8 py-4 rounded-2xl hover:bg-slate-200 transition-all font-black uppercase text-[11px] tracking-widest border border-slate-300 shadow-sm active:scale-95"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
             <span>Print Report</span>
           </button>
-          <button onClick={handleDownloadPDF} className="flex items-center space-x-2 bg-black text-white px-8 py-2.5 rounded-lg hover:bg-gray-900 transition-all shadow-xl font-black uppercase tracking-widest text-[10px]">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            <span>Download PDF ({report.species.toUpperCase()})</span>
+          <button 
+            onClick={handleDownloadPDF} 
+            className="flex items-center space-x-3 bg-blue-700 text-white px-12 py-4 rounded-2xl hover:bg-blue-800 transition-all shadow-xl font-black uppercase tracking-widest text-[11px] border-b-4 border-blue-900 active:translate-y-1 active:border-b-0"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+            <span>Download PDF</span>
           </button>
         </div>
       </div>
 
-      <div className="flex justify-center bg-gray-300 py-10 print:p-0 print:bg-white overflow-x-auto">
-        <div ref={reportRef} className="bg-white shadow-2xl print:shadow-none pdf-container flex flex-col relative overflow-visible official-border" id="report-capture-area">
-          <table className="w-full border-collapse">
-            <thead className="display-table-header-group">
-              <tr>
-                <td className="p-0">
-                  <RepeatingHeader report={report} />
-                </td>
-              </tr>
-            </thead>
-            
-            <tbody>
-              <tr>
-                <td className="px-2 pb-6">
-                  <div className="px-1">
+      {/* A4 Report Wrapper */}
+      <div 
+        ref={reportRef} 
+        className="pdf-canvas-wrapper print:shadow-none bg-white"
+        id="official-report-canvas"
+      >
+        <table className="w-full h-full border-collapse">
+          <thead>
+            <tr>
+              <td>
+                <div className="px-8 pt-4">
+                  <ReportHeader />
+                </div>
+              </td>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <div className="report-content-box border-0 px-8 py-0">
+                  {/* Demographic Grid */}
+                  <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[10pt] border-b border-black pb-4 mb-4">
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Farmer Name:</span>
+                      <span className="font-black text-black uppercase truncate">{report.farmerName} <span className="text-slate-400 font-bold italic lowercase">S/o</span> {report.fatherName}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Hospital / VD:</span>
+                      <span className="font-black text-black uppercase truncate">{report.hospitalName}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Animal / Former Name:</span>
+                      <span className="font-black text-black uppercase truncate underline decoration-dotted">{report.animalName || '-'}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Reference ID:</span>
+                      <span className="font-mono font-black text-blue-800 tracking-tighter uppercase">{report.id.slice(0,10)}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Address:</span>
+                      <span className="text-black font-bold uppercase truncate">{report.farmerAddress || 'Village Record'}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Referring Doctor:</span>
+                      <span className="font-black text-black uppercase">{report.referringDoctor || 'Field VAS'}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Species / Breed:</span>
+                      <span className="font-black text-black uppercase">{report.species} ({report.breed})</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Age / Sex:</span>
+                      <span className="font-black text-black uppercase">{report.age} / {report.sex}</span>
+                    </div>
+                    <div className="flex items-baseline">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Sample Date:</span>
+                      <span className="font-black text-black">{report.dateOfCollection}</span>
+                    </div>
+                    <div className="flex items-baseline col-span-2">
+                      <span className="font-black w-36 text-slate-400 uppercase text-[7.5pt] shrink-0">Reporting Date:</span>
+                      <span className="font-black text-black underline underline-offset-2 font-bold">{report.dateOfReport}</span>
+                    </div>
+                  </div>
+
+                  {/* Laboratory Test Results */}
+                  <div className="flex-1">
                     {Object.entries(report.categorizedResults).map(([catKey, tests]) => {
-                      if (!tests || tests.length === 0) return null;
+                      const typedTests = tests as LabTestEntry[];
+                      if (!typedTests || typedTests.length === 0) return null;
                       return (
                         <div key={catKey} className="mb-6 avoid-break">
-                          <h4 className="text-[10px] font-black text-black uppercase tracking-[0.15em] bg-gray-50 p-2 mb-2 border-l-4 border-black rounded-sm">
-                            {CATEGORY_LABELS[catKey as keyof typeof CATEGORY_LABELS]}
-                          </h4>
-                          <table className="w-full text-[10px] border-collapse">
+                          <h2 className="text-[10pt] font-black bg-slate-100 text-black px-3 py-1.5 border-y border-black mb-2 uppercase tracking-widest">
+                            {CATEGORY_LABELS[catKey]}
+                          </h2>
+                          <table className="nabl-table">
                             <thead>
-                              <tr className="border-b-2 border-black text-gray-950 text-left">
-                                <th className="py-1.5 px-2 font-black uppercase text-[8px]">Investigation Parameter</th>
-                                <th className="py-1.5 px-2 font-black uppercase text-[8px] text-center">Observed Value</th>
-                                <th className="py-1.5 px-2 font-black uppercase text-[8px] text-center">Unit</th>
-                                <th className="py-1.5 px-2 font-black uppercase text-[8px] text-center">Reference Range</th>
+                              <tr>
+                                <th className="text-left w-[55%]">Investigation Parameter</th>
+                                <th className="text-center w-28">Result</th>
+                                <th className="text-center w-20">Unit</th>
+                                <th className="text-center">Reference Interval</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-100">
-                              {tests.map((test, idx) => {
+                            <tbody>
+                              {typedTests.map((test, idx) => {
                                 const isAbnormal = checkAbnormal(test.resultValue, test.normalRange);
                                 return (
-                                  <tr key={idx} className={`text-gray-800 ${isAbnormal ? 'bg-red-50/20 print:bg-red-50/20' : ''}`}>
-                                    <td className="py-1.5 px-2 font-bold uppercase text-[10px]">{test.testName}</td>
-                                    <td className={`py-1.5 px-2 text-center font-black text-[11px] relative ${isAbnormal ? 'text-red-700 font-black' : 'text-black'}`}>
-                                      {test.resultValue}
-                                      {isAbnormal && <span className="ml-0.5 text-[8px] text-red-600 font-black italic align-top">*</span>}
+                                  <tr key={idx} className={isAbnormal ? 'bg-red-50' : ''}>
+                                    <td className="font-black text-black uppercase">{test.testName}</td>
+                                    <td className={`text-center font-black ${isAbnormal ? 'text-red-700 font-extrabold' : 'text-black'}`}>
+                                      {test.resultValue} {isAbnormal && '*'}
                                     </td>
-                                    <td className="py-1.5 px-2 text-center text-gray-500 font-medium">{test.unit}</td>
-                                    <td className="py-1.5 px-2 text-center text-gray-400 font-bold italic tracking-tighter">{test.normalRange}</td>
+                                    <td className="text-center text-slate-500 font-bold">{test.unit || '-'}</td>
+                                    <td className="text-center text-slate-400 font-bold italic text-[8.5pt]">{test.normalRange}</td>
                                   </tr>
                                 );
                               })}
@@ -270,97 +221,58 @@ const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
                         </div>
                       );
                     })}
+                  </div>
 
-                    {report.otherRemarks && (
-                      <div className="mt-8 avoid-break">
-                        <h4 className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] mb-2 border-b pb-1">Pathologist Remarks & Clinical Recommendations</h4>
-                        <div className="text-[10px] text-gray-700 whitespace-pre-wrap font-medium leading-relaxed bg-gray-50/70 p-4 rounded-xl border border-gray-100 italic">
-                          {report.otherRemarks}
-                        </div>
+                  {/* Expert Remarks */}
+                  {report.otherRemarks && (
+                    <div className="mt-4 border-t-2 border-black pt-3 avoid-break mb-6">
+                      <h3 className="text-[10pt] font-black text-black uppercase tracking-widest mb-2 underline underline-offset-4">Pathologist Analysis & Correlation</h3>
+                      <div className="text-[10pt] text-black font-medium border-2 border-slate-100 p-4 bg-slate-50 rounded-xl leading-relaxed whitespace-pre-wrap italic">
+                        {report.otherRemarks}
                       </div>
-                    )}
+                    </div>
+                  )}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>
+                <div className="px-8 pb-8">
+                  {/* Signatures & QR */}
+                  <div className="border-t-2 border-black pt-8 flex justify-between items-end pb-2 px-2">
+                    <div className="text-center">
+                      <div className="w-48 border-t-2 border-black mb-2"></div>
+                      <p className="text-[10pt] font-black uppercase text-black">{report.labTechnicianName}</p>
+                      <p className="text-[8pt] font-black text-slate-500 uppercase tracking-widest">Lab Technician</p>
+                    </div>
+
+                    <div className="flex flex-col items-center">
+                      <div className="bg-white p-2 border-2 border-black mb-1">
+                        <QRCodeSVG value={`https://caddl.ap.gov.in/verify/${report.id}`} size={60} level="H" />
+                      </div>
+                      <p className="text-[6pt] text-slate-400 uppercase font-black tracking-widest text-center">Scan to Verify Report</p>
+                    </div>
+
+                    <div className="text-center">
+                      <div className="w-48 border-t-2 border-black mb-2"></div>
+                      <p className="text-[10pt] font-black uppercase text-black">{report.assistantDirector}</p>
+                      <p className="text-[8pt] font-black text-slate-500 uppercase tracking-widest">Assistant Director</p>
+                    </div>
                   </div>
 
-                  <div className="mt-12 grid grid-cols-2 gap-16 avoid-break pt-10 border-t border-gray-100 pb-10 px-4">
-                    <div className="text-center flex flex-col items-center">
-                      <div className="w-40 h-0.5 bg-gray-300 mb-2"></div>
-                      <p className="text-[9px] font-black text-gray-900 uppercase">{report.labTechnicianName}</p>
-                      <p className="text-[7px] font-bold text-gray-500 uppercase tracking-widest leading-tight">Lab Technician<br/>(CADDL Allagadda)</p>
-                    </div>
-                    <div className="text-center flex flex-col items-center">
-                      <div className="w-40 h-0.5 bg-gray-300 mb-2"></div>
-                      <p className="text-[9px] font-black text-gray-900 uppercase">{report.assistantDirector}</p>
-                      <p className="text-[7px] font-bold text-gray-500 uppercase tracking-widest leading-tight">Assistant Director (Admin)<br/>(CADDL Allagadda)</p>
-                    </div>
+                  <div className="text-center text-[7pt] text-slate-300 font-black uppercase tracking-[0.5em] pt-4">
+                    --- END OF OFFICIAL DIAGNOSTIC DOCUMENT ---
                   </div>
-                  
-                  <div className="flex flex-col items-center avoid-break pt-4 pb-4">
-                    <div className="text-center text-[8px] text-gray-400 font-black uppercase tracking-[0.3em] w-full mt-2 border-t border-gray-50 pt-4 px-4">
-                      *** End of Official Veterinary Diagnostic Report ***
-                    </div>
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-
-            <tfoot className="display-table-footer-group">
-              <tr>
-                <td className="p-0">
-                  <RepeatingFooter report={report} />
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+                </div>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+        
+        <div className="complete-border absolute inset-0 pointer-events-none border-4 border-black m-4 no-print"></div>
       </div>
-
-      <style>{`
-        @media print {
-          @page {
-            size: A4;
-            margin: 0;
-          }
-          body { background: white !important; }
-          .no-print { display: none !important; }
-          .pdf-container { 
-            width: 210mm !important;
-            min-height: 297mm !important;
-            padding: 10mm 15mm !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            border: none !important;
-          }
-          .avoid-break { page-break-inside: avoid; }
-          .display-table-header-group { display: table-header-group !important; }
-          .display-table-footer-group { display: table-footer-group !important; }
-          .official-border {
-             border: 5px double #000000 !important;
-             box-sizing: border-box !important;
-          }
-          .print-page-number:after {
-            content: counter(page);
-          }
-        }
-        .pdf-container {
-          width: 210mm;
-          min-height: 297mm;
-          padding: 12mm;
-          margin: 0 auto;
-          background-color: white;
-          box-sizing: border-box;
-          position: relative;
-        }
-        .official-border {
-          border: 4px double #000000;
-          box-shadow: 0 0 0 2px white, 0 0 0 4px #000000;
-        }
-        .display-table-header-group {
-          display: table-header-group;
-        }
-        .display-table-footer-group {
-          display: table-footer-group;
-        }
-      `}</style>
     </div>
   );
 };
