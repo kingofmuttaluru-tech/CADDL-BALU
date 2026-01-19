@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,15 +11,29 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         
-        /* A4 Layout for PDF/Print - Optimized for Multi-page and Data Integrity */
+        /* Strict A4 Single Page Layout - Prevent "Broken" Reports */
         .pdf-canvas-wrapper {
-            width: 800px;
-            min-height: 1131px; /* A4 minimum height */
+            width: 210mm;
+            height: 296mm; /* Slightly less than 297mm to avoid rounding-induced page breaks */
             margin: 0 auto;
             background: white;
             position: relative;
             box-sizing: border-box;
             box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            padding: 0 !important;
+            overflow: hidden; /* Critical: No content allowed outside this box */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pdf-inner-content {
+            padding: 8mm !important; /* Internal margins */
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
         @media print {
@@ -28,54 +41,44 @@
             body { background: white !important; margin: 0 !important; padding: 0 !important; }
             @page {
                 size: A4;
-                margin: 10mm;
+                margin: 0;
             }
             .pdf-canvas-wrapper { 
-                width: 100% !important; 
-                min-height: 0 !important;
+                width: 210mm !important; 
+                height: 297mm !important;
                 box-shadow: none !important;
                 margin: 0 !important;
-            }
-            
-            thead { display: table-header-group; }
-            tfoot { display: table-footer-group; }
-            
-            .complete-border {
                 border: none !important;
             }
         }
 
-        .report-content-box {
-            border: 4px solid #000;
-            min-height: 1080px;
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-        }
-
+        /* Prevent split elements */
         .avoid-break {
-            page-break-inside: avoid;
-            break-inside: avoid;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
         }
 
         .nabl-table {
             width: 100%;
             border-collapse: collapse;
-            border: 1px solid #000;
+            border: 1.5px solid #000;
+            table-layout: fixed;
         }
         .nabl-table th, .nabl-table td {
             border: 1px solid #000;
-            padding: 5px 8px;
-            font-size: 9.5pt;
-            line-height: 1.2;
+            padding: 3px 6px;
+            font-size: 8.5pt;
+            line-height: 1.1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         .nabl-table th {
             background-color: #f1f5f9;
             text-transform: uppercase;
             font-weight: 800;
             color: #000;
-            font-size: 9pt;
+            font-size: 8pt;
         }
         
         ::-webkit-scrollbar { width: 6px; }
@@ -104,8 +107,7 @@
     "react": "https://esm.sh/react@^19.2.3",
     "react-dom": "https://esm.sh/react-dom@^19.2.3",
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
-    "qrcode.react": "https://esm.sh/qrcode.react@3.1.0?external=react"
+    "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom"
   }
 }
 </script>

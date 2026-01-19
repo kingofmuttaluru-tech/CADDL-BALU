@@ -1,7 +1,18 @@
-
-import React, { useState } from 'react';
-import { DiagnosticReport, Species, LabTestEntry, CategorizedTests } from '../types';
-import { SPECIES_LIST, MASTER_TEST_LIST, CATEGORY_LABELS, HOSPITAL_LIST, DOCTOR_LIST, GOVT_NAME, DEPT_NAME } from '../constants';
+import React, { useState, useMemo } from 'react';
+import { 
+  DiagnosticReport, 
+  LabTestEntry, 
+  CategorizedTests, 
+  Species 
+} from '../types';
+import { 
+  MASTER_TEST_LIST, 
+  CATEGORY_LABELS, 
+  HOSPITAL_LIST, 
+  DOCTOR_LIST, 
+  SPECIES_LIST,
+  BREEDS_BY_SPECIES
+} from '../constants';
 import { getAIInsights } from '../services/geminiService';
 
 interface ReportFormProps {
@@ -10,23 +21,30 @@ interface ReportFormProps {
 
 const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
   const [loadingAI, setLoadingAI] = useState(false);
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string>('All');
+  const [testSearch, setTestSearch] = useState('');
+  const [activeTab, setActiveTab] = useState<keyof CategorizedTests>('clinicalPathology');
+  
   const [formData, setFormData] = useState<Partial<DiagnosticReport>>({
-    id: Math.random().toString(36).substr(2, 9),
+    id: `AGD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
     farmerName: '',
-    fatherName: '',
-    farmerAddress: '',
-    animalName: '',
-    hospitalName: HOSPITAL_LIST[0],
-    dateOfCollection: new Date().toISOString().split('T')[0],
-    dateOfReport: new Date().toISOString().split('T')[0],
+    village: '',
+    mobileNumber: '',
+    animalId: '',
     species: 'Bovine',
+    breed: '',
     age: '',
     sex: 'Female',
-    breed: '',
     referringDoctor: DOCTOR_LIST[0],
-    labTechnicianName: 'S.BALARAJU',
+    hospitalName: HOSPITAL_LIST[0],
+    sampleType: 'Blood',
+    labTechnician: 'C.A.D.D.L ,ALLAGADDA',
     assistantDirector: 'DR.M.Y.VARAPRASAD',
-    status: 'Completed',
+    mandal: 'Allagadda',
+    district: 'Nandyal',
+    dateOfCollection: new Date().toISOString().split('T')[0],
+    dateOfReport: new Date().toISOString().split('T')[0],
+    status: 'Pending',
     conciseSummary: '',
     otherRemarks: '',
     categorizedResults: {
@@ -35,351 +53,435 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
       biochemistry: [],
       microbiology: [],
       parasitology: [],
-      milkExamination: []
+      milkExamination: [],
+      urineAnalysis: [],
+      serology: []
     }
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const [currentTestEntry, setCurrentTestEntry] = useState<LabTestEntry>({
+    testName: '',
+    resultValue: '',
+    unit: '',
+    normalRange: '',
+    method: ''
+  });
 
-  const addTest = (categoryKey: string, masterTestIndex: number) => {
-    const master = MASTER_TEST_LIST[masterTestIndex];
-    if (!master) return;
+  const isMasterSelected = useMemo(() => 
+    MASTER_TEST_LIST.some(t => t.name.toLowerCase() === currentTestEntry.testName.toLowerCase()),
+    [currentTestEntry.testName]
+  );
 
-    const newEntry: LabTestEntry = {
-      testName: master.name,
+  const filteredMasterTests = useMemo(() => {
+    return MASTER_TEST_LIST.filter(test => {
+      const matchesSearch = test.name.toLowerCase().includes(testSearch.toLowerCase()) || 
+                            test.category.toLowerCase().includes(testSearch.toLowerCase());
+      const matchesCategory = activeCategoryFilter === 'All' || test.category === activeCategoryFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [testSearch, activeCategoryFilter]);
+
+  const handleQuickAdd = (test: typeof MASTER_TEST_LIST[0]) => {
+    setCurrentTestEntry({
+      testName: test.name,
       resultValue: '',
-      unit: master.unit,
-      normalRange: master.normalRange
-    };
-
-    setFormData(prev => {
-      const results = { ...prev.categorizedResults } as CategorizedTests;
-      results[categoryKey as keyof CategorizedTests] = [
-        ...results[categoryKey as keyof CategorizedTests],
-        newEntry
-      ];
-      return { ...prev, categorizedResults: results };
+      unit: test.unit,
+      normalRange: test.normalRange,
+      method: test.method || ''
     });
+    setActiveTab(test.category as keyof CategorizedTests);
   };
 
-  const bulkAddByCategory = (category: string, subCategory?: string) => {
-    const tests = MASTER_TEST_LIST.filter(t => 
-      t.category === category && (!subCategory || t.subCategory === subCategory)
-    );
-    const newEntries: LabTestEntry[] = tests.map(t => ({
-      testName: t.name,
-      resultValue: '',
-      unit: t.unit,
-      normalRange: t.normalRange
-    }));
-
-    setFormData(prev => {
-      const results = { ...prev.categorizedResults } as CategorizedTests;
-      results[category as keyof CategorizedTests] = [
-        ...results[category as keyof CategorizedTests],
-        ...newEntries
-      ];
-      return { ...prev, categorizedResults: results };
-    });
+  const handleAddTest = () => {
+    if (!currentTestEntry.testName || !currentTestEntry.resultValue) return;
+    const updatedResults = { ...formData.categorizedResults } as CategorizedTests;
+    updatedResults[activeTab] = [...updatedResults[activeTab], currentTestEntry];
+    setFormData({ ...formData, categorizedResults: updatedResults });
+    setCurrentTestEntry({ testName: '', resultValue: '', unit: '', normalRange: '', method: '' });
   };
 
-  const updateTestResult = (categoryKey: string, testIndex: number, value: string) => {
-    setFormData(prev => {
-      const results = { ...prev.categorizedResults } as CategorizedTests;
-      const category = [...results[categoryKey as keyof CategorizedTests]];
-      category[testIndex] = { ...category[testIndex], resultValue: value };
-      results[categoryKey as keyof CategorizedTests] = category;
-      return { ...prev, categorizedResults: results };
-    });
+  const handleRemoveTest = (category: keyof CategorizedTests, index: number) => {
+    const updatedResults = { ...formData.categorizedResults } as CategorizedTests;
+    updatedResults[category] = updatedResults[category].filter((_, i) => i !== index);
+    setFormData({ ...formData, categorizedResults: updatedResults });
   };
 
-  const removeTest = (categoryKey: string, testIndex: number) => {
-    setFormData(prev => {
-      const results = { ...prev.categorizedResults } as CategorizedTests;
-      const category = [...results[categoryKey as keyof CategorizedTests]];
-      category.splice(testIndex, 1);
-      results[categoryKey as keyof CategorizedTests] = category;
-      return { ...prev, categorizedResults: results };
-    });
-  };
-
-  const generateAIInsight = async () => {
+  const handleAIAnalyze = async () => {
+    if (!formData.categorizedResults || Object.values(formData.categorizedResults).every(t => (t as any[]).length === 0)) {
+      return alert("Add laboratory findings first for AI analysis.");
+    }
     setLoadingAI(true);
-    const { detailedAnalysis, conciseSummary } = await getAIInsights(formData);
-    
-    setFormData(prev => ({
-      ...prev,
-      conciseSummary: conciseSummary,
-      otherRemarks: detailedAnalysis
-    }));
-    setLoadingAI(false);
+    try {
+      const insights = await getAIInsights(formData);
+      setFormData({
+        ...formData,
+        otherRemarks: insights.detailedAnalysis,
+        conciseSummary: insights.conciseSummary,
+        status: 'Completed'
+      });
+    } catch (error) {
+      console.error("AI Analysis failed:", error);
+      alert("AI analysis engine timed out. Please enter remarks manually.");
+    } finally {
+      setLoadingAI(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.farmerName || !formData.animalId) return alert("Farmer Name and Animal Tag ID are mandatory.");
     onSave(formData as DiagnosticReport);
   };
 
+  const availableBreeds = BREEDS_BY_SPECIES[formData.species || 'Bovine'] || [];
+
   return (
-    <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-2xl border-2 border-black animate-fadeIn space-y-10 max-w-6xl mx-auto">
-      {/* Official Header in Form */}
-      <div className="text-center border-b-4 border-blue-900 pb-6 mb-8">
-        <h2 className="text-xl font-black text-blue-800 tracking-widest uppercase">{GOVT_NAME}</h2>
-        <h3 className="text-lg font-black text-blue-800 tracking-tight uppercase mb-4">{DEPT_NAME}</h3>
-        <div className="bg-green-700 text-white py-2 px-6 inline-block rounded-lg shadow-md">
-          <span className="font-black text-sm uppercase tracking-widest">New Laboratory Case Entry</span>
-        </div>
-      </div>
+    <div className="max-w-7xl mx-auto pb-24 px-4">
+      <form onSubmit={handleSubmit} className="space-y-8 animate-fadeIn">
+        
+        {/* OFFICIAL ANIMAL REGISTRATION PORTAL */}
+        <section className="bg-white rounded-[2rem] shadow-2xl border-4 border-black overflow-hidden">
+          <div className="bg-blue-900 px-8 py-5 flex justify-between items-center border-b-4 border-black">
+            <h2 className="text-white text-[11px] font-black uppercase tracking-[0.3em] flex items-center">
+              <span className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mr-4 shadow-inner">
+                <svg className="w-5 h-5 text-blue-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+              </span>
+              Official Animal Registration Portal
+            </h2>
+            <div className="flex items-center space-x-4">
+              <span className="text-[10px] font-black text-blue-200 uppercase tracking-widest hidden md:block">Case ID: {formData.id}</span>
+              <div className="bg-emerald-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase border-2 border-white/20 shadow-lg">
+                Status: {formData.status}
+              </div>
+            </div>
+          </div>
 
-      {/* Header Info */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="col-span-full border-b-2 border-black pb-2">
-          <h3 className="font-black text-blue-900 uppercase text-sm tracking-wider">Farmer & Animal Information</h3>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Farmer Name</label>
-          <input required type="text" name="farmerName" value={formData.farmerName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Father / Husband Name</label>
-          <input required type="text" name="fatherName" value={formData.fatherName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Hospital / VD Name</label>
-          <select name="hospitalName" value={formData.hospitalName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold">
-            {HOSPITAL_LIST.map(h => <option key={h} value={h}>{h}</option>)}
-          </select>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-blue-800 uppercase">Animal Name / Former Name</label>
-          <input type="text" name="animalName" value={formData.animalName} onChange={handleChange} placeholder="Required/Optional" className="w-full p-2.5 border-2 border-blue-800 rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
-        </div>
-        <div className="space-y-1 col-span-2">
-          <label className="text-xs font-black text-black uppercase">Farmer Address</label>
-          <input type="text" name="farmerAddress" value={formData.farmerAddress} onChange={handleChange} placeholder="Village, Mandal, District" className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold uppercase" />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Species</label>
-          <select name="species" value={formData.species} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold">
-            {SPECIES_LIST.map(s => <option key={s} value={s.split(' ')[0]}>{s}</option>)}
-          </select>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Breed</label>
-          <input type="text" name="breed" value={formData.breed} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold uppercase" />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Age</label>
-          <input type="text" name="age" value={formData.age} onChange={handleChange} placeholder="e.g. 5 Years" className="w-full p-2.5 border-2 border-black rounded-lg font-bold uppercase" />
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Sex</label>
-          <select name="sex" value={formData.sex} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold">
-            <option>Male</option>
-            <option>Female</option>
-            <option>Unknown</option>
-          </select>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Referring Doctor</label>
-          <select name="referringDoctor" value={formData.referringDoctor} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg focus:ring-2 focus:ring-green-500 outline-none transition-all font-bold">
-            {DOCTOR_LIST.map(d => <option key={d} value={d}>{d}</option>)}
-            <option value="Other">Other Doctor</option>
-          </select>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase">Collection Date</label>
-          <input type="date" name="dateOfCollection" value={formData.dateOfCollection} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-bold" />
-        </div>
-      </div>
-
-      {/* Investigations */}
-      <div className="space-y-8">
-        <div className="col-span-full border-b-2 border-black pb-2 flex justify-between items-center">
-          <h3 className="font-black text-blue-900 uppercase text-sm tracking-wider">Laboratory Investigations</h3>
-        </div>
-
-        {Object.keys(CATEGORY_LABELS).map((catKey) => (
-          <div key={catKey} className="bg-green-50 p-6 rounded-xl border-2 border-green-200 shadow-inner">
-            <div className="flex flex-wrap justify-between items-center mb-4 gap-4">
-              <h4 className="font-black text-black text-xs tracking-tighter uppercase">{CATEGORY_LABELS[catKey]}</h4>
-              
-              <div className="flex flex-wrap items-center gap-2">
-                {catKey === 'clinicalPathology' && (
-                  <button 
-                    type="button"
-                    onClick={() => bulkAddByCategory('clinicalPathology')}
-                    className="text-[10px] font-black bg-green-700 text-white px-3 py-1.5 rounded-lg hover:bg-green-800 transition-all shadow-sm uppercase tracking-widest border border-black"
-                  >
-                    Select All CBP
-                  </button>
-                )}
-
-                {catKey === 'biochemistry' && (
-                  <>
-                    <button 
-                      type="button"
-                      onClick={() => bulkAddByCategory('biochemistry', 'LFT')}
-                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
-                    >
-                      + LFT
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => bulkAddByCategory('biochemistry', 'RFT')}
-                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
-                    >
-                      + RFT
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => bulkAddByCategory('biochemistry', 'ELECTROLYTES')}
-                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
-                    >
-                      + ELECTROLYTES
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => bulkAddByCategory('biochemistry', 'MINERALS')}
-                      className="text-[10px] font-black bg-blue-800 text-white px-3 py-1.5 rounded-lg hover:bg-blue-900 transition-all shadow-sm uppercase tracking-widest border border-black"
-                    >
-                      + MINERALS
-                    </button>
-                  </>
-                )}
-
-                <select 
-                  className="text-[10px] p-1.5 rounded-lg border-2 border-black bg-white font-black text-black outline-none focus:ring-1 focus:ring-green-500"
-                  onChange={(e) => {
-                    if (e.target.value !== "") addTest(catKey, parseInt(e.target.value));
-                    e.target.value = "";
-                  }}
-                >
-                  <option value="">+ Individual Test</option>
-                  {MASTER_TEST_LIST
-                    .map((t, idx) => ({ ...t, originalIndex: idx }))
-                    .filter(t => t.category === catKey)
-                    .map(t => (
-                      <option key={t.originalIndex} value={t.originalIndex}>{t.name}</option>
-                    ))
-                  }
-                </select>
+          <div className="p-10 space-y-12 bg-slate-50/30">
+            {/* Farmer & Location Details */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="h-4 w-1.5 bg-blue-900 rounded-full"></div>
+                <span className="text-[11px] font-black text-blue-900 uppercase tracking-widest">Farmer & Owner Details</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Farmer Name *</label>
+                  <input required type="text" className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold uppercase transition-all shadow-sm"
+                    placeholder="FULL NAME" value={formData.farmerName} onChange={e => setFormData({...formData, farmerName: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Cell Number</label>
+                  <input type="tel" className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    placeholder="10-DIGIT MOBILE" value={formData.mobileNumber} onChange={e => setFormData({...formData, mobileNumber: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Address / Village</label>
+                  <input type="text" className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold uppercase transition-all shadow-sm"
+                    placeholder="VILLAGE NAME" value={formData.village} onChange={e => setFormData({...formData, village: e.target.value})} />
+                </div>
               </div>
             </div>
 
-            <div className="space-y-3">
-              {(formData.categorizedResults as any)[catKey].map((entry: LabTestEntry, idx: number) => (
-                <div key={idx} className="flex flex-wrap items-center gap-4 bg-white p-3 rounded-lg border-2 border-black shadow-sm group">
-                  <div className="flex-1 min-w-[200px]">
-                    <span className="text-xs font-black text-blue-900 uppercase">{entry.testName}</span>
-                  </div>
-                  <div className="w-32">
-                    <input 
-                      required
-                      type="text" 
-                      placeholder="Result" 
-                      value={entry.resultValue}
-                      onChange={(e) => updateTestResult(catKey, idx, e.target.value)}
-                      className="w-full p-1.5 border-2 border-black rounded text-sm text-center font-black focus:border-green-600 outline-none transition-all"
-                    />
-                  </div>
-                  <div className="w-20 text-center text-xs text-black font-black">
-                    {entry.unit}
-                  </div>
-                  <div className="w-32 text-[10px] text-green-700 font-black text-center border-l-2 border-black pl-2">
-                    NORMAL: {entry.normalRange}
-                  </div>
-                  <button 
-                    type="button"
-                    onClick={() => removeTest(catKey, idx)}
-                    className="p-1 text-black hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
+            {/* Animal Patient Profile */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="h-4 w-1.5 bg-emerald-700 rounded-full"></div>
+                <span className="text-[11px] font-black text-emerald-800 uppercase tracking-widest">Animal Patient Profile</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-emerald-700 uppercase tracking-widest ml-1">Animal Tag ID *</label>
+                  <input required type="text" className="w-full p-4 bg-emerald-50/30 border-2 border-emerald-200 rounded-2xl focus:border-emerald-600 outline-none font-black uppercase transition-all shadow-sm"
+                    placeholder="TAG NUMBER" value={formData.animalId} onChange={e => setFormData({...formData, animalId: e.target.value})} />
                 </div>
-              ))}
-              {(formData.categorizedResults as any)[catKey].length === 0 && (
-                <p className="text-center py-4 text-xs text-green-800 italic font-black">No tests added to this investigation section.</p>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Species</label>
+                  <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    value={formData.species} onChange={e => setFormData({...formData, species: e.target.value as Species})}>
+                    {SPECIES_LIST.map(s => <option key={s} value={s.split(' ')[0]}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Breed Name</label>
+                  <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    value={formData.breed} onChange={e => setFormData({...formData, breed: e.target.value})}>
+                    <option value="">Select Breed</option>
+                    {availableBreeds.map(b => <option key={b} value={b}>{b}</option>)}
+                    <option value="Other">Other / Unknown</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Age</label>
+                  <input type="text" className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold uppercase transition-all shadow-sm"
+                    placeholder="e.g. 3Y 4M" value={formData.age} onChange={e => setFormData({...formData, age: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Animal Sex</label>
+                  <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    value={formData.sex} onChange={e => setFormData({...formData, sex: e.target.value as any})}>
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Unknown">Unknown</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Diagnostic & Sample Data */}
+            <div className="space-y-6">
+              <div className="flex items-center space-x-3">
+                <div className="h-4 w-1.5 bg-slate-600 rounded-full"></div>
+                <span className="text-[11px] font-black text-slate-600 uppercase tracking-widest">Sample & Referral Data</span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Sample Type</label>
+                  <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    value={formData.sampleType} onChange={e => setFormData({...formData, sampleType: e.target.value})}>
+                    <option value="Blood">Blood (EDTA/Serum)</option>
+                    <option value="Milk">Milk Sample</option>
+                    <option value="Fecal">Fecal Sample</option>
+                    <option value="Urine">Urine Sample</option>
+                    <option value="Skin Scraping">Skin Scraping</option>
+                    <option value="Swab">Swab / Tissue</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Collection Date</label>
+                  <input type="date" className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    value={formData.dateOfCollection} onChange={e => setFormData({...formData, dateOfCollection: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Hospital Name</label>
+                  <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    value={formData.hospitalName} onChange={e => setFormData({...formData, hospitalName: e.target.value})}>
+                    {HOSPITAL_LIST.map(h => <option key={h} value={h}>{h}</option>)}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Referring Doctor Name</label>
+                  <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
+                    value={formData.referringDoctor} onChange={e => setFormData({...formData, referringDoctor: e.target.value})}>
+                    {DOCTOR_LIST.map(d => <option key={d} value={d}>{d}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 2. ADVANCED TEST SEARCH & SELECTION PANEL */}
+        <section className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+          <div className="bg-emerald-800 px-8 py-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <h2 className="text-white text-[10px] font-black uppercase tracking-[0.25em] flex items-center">
+              <span className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center mr-3">
+                <svg className="w-4 h-4 text-emerald-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+              </span>
+              Diagnostic Selection Hub
+            </h2>
+            
+            <div className="relative w-full md:w-96 group">
+              <input 
+                type="text" 
+                placeholder="Search Laboratory Master Tests..." 
+                className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-white text-xs font-bold placeholder:text-emerald-200/50 focus:bg-white focus:text-slate-900 focus:outline-none transition-all shadow-inner"
+                value={testSearch}
+                onChange={e => setTestSearch(e.target.value)}
+              />
+              {testSearch && (
+                <button 
+                  type="button"
+                  onClick={() => setTestSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white group-focus-within:text-slate-400"
+                >
+                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>
+                </button>
               )}
             </div>
           </div>
-        ))}
-      </div>
 
-      {/* Clinical Review Fields */}
-      <div className="space-y-6">
-        <div className="col-span-full border-b-2 border-black pb-2">
-          <h3 className="font-black text-blue-900 uppercase text-sm tracking-wider">Clinical Review & Authorization</h3>
-        </div>
-        
-        <div className="space-y-1">
-          <label className="text-xs font-black text-blue-800 uppercase tracking-widest flex items-center">
-            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3.005 3.005 0 013.75-2.906z"></path></svg>
-            Concise Executive Summary (AI Generated)
-          </label>
-          <textarea 
-            name="conciseSummary"
-            value={formData.conciseSummary}
-            onChange={handleChange}
-            rows={2}
-            className="w-full p-4 border-2 border-blue-900 rounded-xl text-sm bg-blue-50 text-black focus:ring-green-500 font-bold italic"
-            placeholder="AI Summary will appear here after diagnostic request..."
-          />
-        </div>
+          <div className="p-8">
+            {/* Category Filter Chips */}
+            <div className="flex flex-wrap gap-2 mb-8 pb-4 border-b border-slate-100">
+              {['All', ...Object.keys(CATEGORY_LABELS)].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategoryFilter(cat)}
+                  className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${
+                    activeCategoryFilter === cat 
+                      ? 'bg-emerald-800 text-white border-black shadow-lg scale-105' 
+                      : 'bg-white text-slate-400 border-slate-100 hover:border-emerald-200 hover:text-emerald-800'
+                  }`}
+                >
+                  {cat === 'All' ? 'View All Tests' : CATEGORY_LABELS[cat].split(' ')[0]}
+                </button>
+              ))}
+            </div>
 
-        <div className="space-y-1">
-          <label className="text-xs font-black text-black uppercase tracking-widest">Detailed Pathologist Remarks & Recommendations</label>
-          <textarea 
-            name="otherRemarks"
-            value={formData.otherRemarks}
-            onChange={handleChange}
-            rows={5}
-            className="w-full p-4 border-2 border-black rounded-xl text-sm bg-white text-black focus:ring-green-500 font-medium"
-            placeholder="Detailed clinical analysis and specific recommendations for the farmer..."
-          />
-        </div>
+            {/* Filtered Results Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 mb-12 min-h-[120px]">
+              {filteredMasterTests.map((test, i) => (
+                <button 
+                  key={i}
+                  type="button"
+                  onClick={() => handleQuickAdd(test)}
+                  className="group relative flex flex-col p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl hover:bg-white hover:border-emerald-600 hover:shadow-xl hover:-translate-y-1 transition-all text-left"
+                >
+                  <span className="text-[10px] font-black text-slate-900 uppercase leading-tight mb-2 group-hover:text-emerald-800">{test.name}</span>
+                  <span className="text-[8px] font-black text-slate-300 uppercase tracking-widest mt-auto group-hover:text-emerald-600/50">
+                    {test.category.slice(0, 10)}...
+                  </span>
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <svg className="w-3 h-3 text-emerald-600" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" /></svg>
+                  </div>
+                </button>
+              ))}
+              {filteredMasterTests.length === 0 && (
+                <div className="col-span-full py-12 text-center text-slate-300">
+                  <p className="text-xs font-black uppercase tracking-[0.2em]">No Master Tests Matching Your Query</p>
+                </div>
+              )}
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
-          <div className="space-y-1">
-            <label className="text-xs font-black text-black uppercase tracking-widest">Lab Technician Name</label>
-            <input type="text" name="labTechnicianName" value={formData.labTechnicianName} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-black uppercase" />
+            {/* Test Value Entry Form */}
+            <div className="bg-slate-900 p-8 rounded-[1.5rem] border-b-4 border-emerald-600 mb-10 shadow-2xl">
+              <div className="flex items-center gap-2 mb-6">
+                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-[0.3em]">Value Entry Layer:</span>
+                <span className="text-[10px] font-black text-white uppercase flex items-center">
+                  {currentTestEntry.testName || 'Select a test above'}
+                  {isMasterSelected && (
+                    <svg className="w-3 h-3 ml-2 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+                  )}
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div className="md:col-span-2 space-y-2">
+                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Laboratory Parameter</label>
+                  <input type="text" className="w-full p-4 bg-slate-800 border-2 border-slate-700 rounded-2xl text-white outline-none font-black uppercase focus:border-emerald-500"
+                    placeholder="TEST NAME" value={currentTestEntry.testName} onChange={e => setCurrentTestEntry({...currentTestEntry, testName: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Result Finding</label>
+                  <input type="text" className="w-full p-4 bg-slate-800 border-2 border-slate-700 rounded-2xl text-white outline-none font-black uppercase focus:border-emerald-500"
+                    placeholder="RESULT" value={currentTestEntry.resultValue} onChange={e => setCurrentTestEntry({...currentTestEntry, resultValue: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] ml-1">Units / Ref Range</label>
+                  <div className="flex gap-2">
+                    <input 
+                      type="text" 
+                      readOnly={isMasterSelected}
+                      className={`w-1/2 p-4 border-2 rounded-2xl outline-none font-bold text-xs transition-all ${
+                        isMasterSelected 
+                          ? 'bg-slate-700/50 border-slate-700 text-slate-400 cursor-not-allowed' 
+                          : 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500'
+                      }`}
+                      placeholder="UNIT" 
+                      value={currentTestEntry.unit} 
+                      onChange={e => !isMasterSelected && setCurrentTestEntry({...currentTestEntry, unit: e.target.value})} 
+                    />
+                    <input 
+                      type="text" 
+                      readOnly={isMasterSelected}
+                      className={`w-1/2 p-4 border-2 rounded-2xl outline-none font-bold text-xs uppercase transition-all ${
+                        isMasterSelected 
+                          ? 'bg-slate-700/50 border-slate-700 text-slate-400 cursor-not-allowed' 
+                          : 'bg-slate-800 border-slate-700 text-white focus:border-emerald-500'
+                      }`}
+                      placeholder="RANGE" 
+                      value={currentTestEntry.normalRange} 
+                      onChange={e => !isMasterSelected && setCurrentTestEntry({...currentTestEntry, normalRange: e.target.value})} 
+                    />
+                  </div>
+                </div>
+                <button type="button" onClick={handleAddTest} className="h-[60px] bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl transition-all active:scale-95">
+                  Append to Report
+                </button>
+              </div>
+            </div>
+
+            {/* Added Tests Visualization */}
+            <div className="space-y-8">
+              {Object.entries(CATEGORY_LABELS).map(([catKey, catLabel]) => {
+                const tests = formData.categorizedResults?.[catKey as keyof CategorizedTests] || [];
+                if (tests.length === 0) return null;
+                return (
+                  <div key={catKey} className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm">
+                    <div className="bg-slate-50 px-6 py-3 border-b border-slate-100 flex justify-between items-center">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{catLabel}</span>
+                      <span className="text-[9px] font-black bg-white px-2 py-1 rounded-lg border border-slate-200">{tests.length} Parameters</span>
+                    </div>
+                    <table className="w-full text-left">
+                      <thead>
+                        <tr className="bg-white border-b border-slate-50 text-[9px] text-slate-300 font-black uppercase tracking-widest">
+                          <th className="px-6 py-4">Parameter Name</th>
+                          <th className="px-6 py-4">Observed Finding</th>
+                          <th className="px-6 py-4">Reference Standards</th>
+                          <th className="px-6 py-4 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50">
+                        {tests.map((t, i) => (
+                          <tr key={i} className="hover:bg-emerald-50/50 transition-colors">
+                            <td className="px-6 py-4 text-xs font-bold uppercase text-slate-700">{t.testName}</td>
+                            <td className="px-6 py-4 text-xs font-black uppercase text-blue-900">{t.resultValue} {t.unit}</td>
+                            <td className="px-6 py-4 text-[10px] font-medium text-slate-400 italic">{t.normalRange}</td>
+                            <td className="px-6 py-4 text-right">
+                              <button type="button" onClick={() => handleRemoveTest(catKey as keyof CategorizedTests, i)} className="text-red-200 hover:text-red-600 transition-colors">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs font-black text-black uppercase tracking-widest">Assistant Director Name</label>
-            <input type="text" name="assistantDirector" value={formData.assistantDirector} onChange={handleChange} className="w-full p-2.5 border-2 border-black rounded-lg font-black uppercase" />
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <div className="mt-10 flex flex-wrap gap-4 items-center justify-end border-t-2 border-black pt-8">
-        <button 
-          type="button" 
-          onClick={generateAIInsight}
-          disabled={loadingAI}
-          className="px-6 py-2 border-4 border-green-700 text-green-700 rounded-xl hover:bg-green-700 hover:text-white font-black flex items-center space-x-2 disabled:opacity-50 transition-all uppercase text-xs tracking-widest shadow-lg"
-        >
-          {loadingAI ? (
-            <svg className="animate-spin h-4 w-4 mr-2 text-green-700" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-          ) : (
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          )}
-          <span>Request Expert AI Diagnosis</span>
-        </button>
-        <button type="submit" className="px-12 py-3 bg-blue-900 text-white rounded-xl hover:bg-black font-black shadow-2xl transition-all active:scale-95 uppercase tracking-widest text-sm border-2 border-black">
-          Finalize & Generate Report
-        </button>
-      </div>
-    </form>
+        {/* 3. CLINICAL REMARKS */}
+        <section className="bg-slate-900 rounded-[2rem] p-10 text-white shadow-2xl border-l-[12px] border-emerald-600">
+           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-10">
+              <div>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-white">Pathologist Review Area</h3>
+                <p className="text-[10px] text-emerald-500 font-black uppercase tracking-[0.3em] mt-1">Diagnosis & Clinical Assistance</p>
+              </div>
+              <button type="button" disabled={loadingAI} onClick={handleAIAnalyze}
+                className={`px-10 py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all flex items-center space-x-3 shadow-2xl border-2 ${
+                  loadingAI ? 'bg-slate-800 border-slate-700' : 'bg-emerald-700 border-emerald-500 hover:bg-emerald-600'
+                }`}>
+                {loadingAI ? 'Processing Findings...' : 'Synthesize AI Insights'}
+              </button>
+           </div>
+           
+           <div className="grid grid-cols-1 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Executive Summary (Diagnosis Hint)</label>
+                <input type="text" className="w-full p-5 bg-slate-800 border-2 border-slate-700 rounded-2xl text-xs font-black text-emerald-400 outline-none focus:border-emerald-600"
+                  placeholder="EXECUTIVE SUMMARY" value={formData.conciseSummary} onChange={e => setFormData({...formData, conciseSummary: e.target.value})} />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Clinical Remarks & Professional Advice</label>
+                <textarea rows={6} className="w-full p-8 bg-slate-800 border-2 border-slate-700 rounded-[1.5rem] text-sm font-medium leading-relaxed outline-none focus:border-emerald-600"
+                  placeholder="Detailed findings and advice..."
+                  value={formData.otherRemarks} onChange={e => setFormData({...formData, otherRemarks: e.target.value})} />
+              </div>
+           </div>
+        </section>
+
+        {/* SUBMIT */}
+        <div className="flex justify-end pt-10 border-t-2 border-slate-200">
+           <button type="submit" className="px-24 py-6 bg-blue-900 text-white rounded-[2rem] font-black uppercase text-xs tracking-[0.4em] shadow-2xl hover:bg-black hover:translate-y-[-4px] transition-all">
+            Lock & Finalize Official Report
+           </button>
+        </div>
+      </form>
+    </div>
   );
 };
 

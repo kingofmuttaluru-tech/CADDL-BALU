@@ -1,4 +1,3 @@
-
 export type Species = 'Bovine' | 'Caprine' | 'Ovine' | 'Equine' | 'Avian' | 'Canine' | 'Other';
 
 export interface LabTestEntry {
@@ -6,6 +5,7 @@ export interface LabTestEntry {
   resultValue: string;
   unit: string;
   normalRange: string;
+  method?: string;
 }
 
 export interface CategorizedTests {
@@ -15,27 +15,46 @@ export interface CategorizedTests {
   microbiology: LabTestEntry[];
   parasitology: LabTestEntry[];
   milkExamination: LabTestEntry[];
+  urineAnalysis: LabTestEntry[];
+  serology: LabTestEntry[];
 }
 
 export interface DiagnosticReport {
   id: string;
+  // 2. Farmer / Owner Details
   farmerName: string;
-  fatherName: string;
-  farmerAddress: string;
-  hospitalName: string;
-  animalName?: string; // For "Former Name" or "Alternative Name"
-  dateOfCollection: string;
-  dateOfReport: string;
+  village: string;
+  mandal: string;
+  district: string;
+  mobileNumber: string;
+  farmerId?: string;
+  // 3. Animal Details
+  animalId: string; // Tag No
   species: Species;
+  breed: string;
   age: string;
   sex: 'Male' | 'Female' | 'Unknown';
-  breed: string;
+  bodyWeight: string;
+  pregnancyStatus: string;
+  lactationStage: string;
+  clinicalHistory: string;
+  // 4. Sample Details
+  sampleType: string;
+  sampleId: string;
+  dateOfCollection: string;
+  collectionTime: string;
+  collectedBy: string;
+  sampleCondition: string;
+  // Lab Info
+  dateOfReport: string;
+  hospitalName: string;
   referringDoctor: string;
-  labTechnicianName: string;
   assistantDirector: string;
+  labTechnician: string;
+  // 5. Results & 7. Interpretation
   categorizedResults: CategorizedTests;
-  conciseSummary: string;
-  otherRemarks: string;
+  conciseSummary: string; // Diagnosis hints
+  otherRemarks: string; // Abnormal findings & follow-up advice
   status: 'Pending' | 'Completed';
 }
 
