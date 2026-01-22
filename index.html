@@ -3,45 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CADDL Allagadda Admin Portal</title>
+    <title>CADDL Allagadda Admin Portal | Official Veterinary Diagnostics</title>
+    <meta name="description" content="Official Veterinary Diagnostic Portal for CADDL Allagadda. High-precision clinical reporting and animal disease monitoring system.">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- html2pdf.js for high-quality PDF downloads -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #f0f4f8; }
         
-        /* Strict A4 Single Page Layout - Prevent "Broken" Reports */
+        /* A4 Layout - Exactly 210mm width. Height is flexible on screen but forced on print */
         .pdf-canvas-wrapper {
             width: 210mm;
-            height: 296mm; /* Slightly less than 297mm to avoid rounding-induced page breaks */
+            min-height: 297mm;
             margin: 0 auto;
             background: white;
             position: relative;
             box-sizing: border-box;
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            padding: 0 !important;
-            overflow: hidden; /* Critical: No content allowed outside this box */
             display: flex;
             flex-direction: column;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
         }
 
         .pdf-inner-content {
-            padding: 8mm !important; /* Internal margins */
+            padding: 10mm !important;
             width: 100%;
-            height: 100%;
+            flex: 1;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
-            overflow: hidden;
         }
 
         @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; margin: 0 !important; padding: 0 !important; }
-            @page {
-                size: A4;
-                margin: 0;
+            .no-print, nav, footer, header { display: none !important; }
+            html, body { 
+                background: white !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+                width: 210mm !important;
+                height: 297mm !important;
+                overflow: hidden !important;
             }
             .pdf-canvas-wrapper { 
                 width: 210mm !important; 
@@ -49,13 +50,14 @@
                 box-shadow: none !important;
                 margin: 0 !important;
                 border: none !important;
+                page-break-after: avoid !important;
+                page-break-before: avoid !important;
+                page-break-inside: avoid !important;
             }
-        }
-
-        /* Prevent split elements */
-        .avoid-break {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
         }
 
         .nabl-table {
@@ -66,9 +68,9 @@
         }
         .nabl-table th, .nabl-table td {
             border: 1px solid #000;
-            padding: 3px 6px;
+            padding: 4px 6px;
             font-size: 8.5pt;
-            line-height: 1.1;
+            line-height: 1.2;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -76,26 +78,26 @@
         .nabl-table th {
             background-color: #f1f5f9;
             text-transform: uppercase;
-            font-weight: 800;
+            font-weight: 900;
             color: #000;
-            font-size: 8pt;
+            font-size: 7.5pt;
         }
         
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 3px; }
-
         * {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
         }
 
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 3px; }
+
         .animate-fadeIn {
-            animation: fadeIn 0.3s ease-in-out;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
     </style>
@@ -112,7 +114,7 @@
 }
 </script>
 </head>
-<body class="bg-blue-50 text-slate-900">
+<body class="bg-[#f0f4f8] text-slate-900 overflow-x-hidden">
     <div id="root"></div>
 </body>
 </html>
