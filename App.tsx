@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { View, DiagnosticReport, ConsultationRequest } from './types';
 import Dashboard from './components/Dashboard';
@@ -53,7 +54,7 @@ const App: React.FC = () => {
             dateOfReport: '2024-05-21',
             hospitalName: HOSPITAL_LIST[0],
             referringDoctor: 'Dr. Ramesh Kumar',
-            assistantDirector: 'DR.M.Y.VARAPRASAD',
+            assistantDirector: 'Dr. C. H. Chandra Mohan Reddy',
             labTechnician: 'C.A.D.D.L ,ALLAGADDA',
             status: 'Completed',
             conciseSummary: 'Suspected Gastrointestinal Parasitism & Mild Deficiency.',

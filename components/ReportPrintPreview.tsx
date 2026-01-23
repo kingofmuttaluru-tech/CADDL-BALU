@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { DiagnosticReport, LabTestEntry } from '../types';
 import { 
@@ -134,8 +135,8 @@ const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
               <div className="border border-black p-3 bg-[#f8fafc]">
                 <h4 className="text-[7pt] font-black text-slate-700 uppercase border-b border-black mb-2 tracking-widest leading-none pb-1">REFERENCE INFO</h4>
                 <div className="grid grid-cols-1 gap-y-1.5 text-[9.5pt] leading-none">
-                  <p className="flex justify-between"><span className="font-black text-slate-400">DOCTOR:</span> <span className="font-black uppercase text-slate-900 truncate max-w-[130px]">{report.referringDoctor || 'N/A'}</span></p>
-                  <p className="flex justify-between"><span className="font-black text-slate-400">HOSPITAL:</span> <span className="font-bold uppercase text-slate-800 truncate max-w-[130px]">{report.hospitalName || 'N/A'}</span></p>
+                  <p className="flex justify-between"><span className="font-black text-slate-400">DOCTOR:</span> <span className="font-black uppercase text-slate-900 truncate max-w-[140px]">{report.referringDoctor || 'N/A'}</span></p>
+                  <p className="flex justify-between"><span className="font-black text-slate-400">HOSPITAL:</span> <span className="font-bold uppercase text-slate-800 truncate max-w-[140px]">{report.hospitalName || 'N/A'}</span></p>
                   <p className="flex justify-between border-t border-slate-100 pt-1 mt-1"><span className="font-black text-slate-400">SAMPLE:</span> <span className="font-bold uppercase text-emerald-700">{report.sampleType}</span></p>
                   <p className="flex justify-between"><span className="font-black text-slate-400">COLLECTED:</span> <span className="font-bold uppercase text-slate-800">{report.dateOfCollection}</span></p>
                 </div>
@@ -218,7 +219,7 @@ const ReportPrintPreview: React.FC<ReportPrintPreviewProps> = ({ report }) => {
               
               <div className="w-[240px] text-center">
                  <div className="w-full border-t border-black pt-2">
-                   <div className="font-black text-[9pt] uppercase leading-none text-slate-900">DR. M. Y. VARA PRASAD</div>
+                   <div className="font-black text-[9pt] uppercase leading-none text-slate-900">Dr. C. H. Chandra Mohan Reddy</div>
                    <div className="text-[7pt] font-black text-slate-600 uppercase leading-none mt-1 tracking-widest">ASSISTANT DIRECTOR</div>
                    <div className="text-[7.5pt] font-black uppercase text-blue-900 mt-1 leading-none tracking-tighter">CADDL ALLAGADDA</div>
                  </div>

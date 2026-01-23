@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo } from 'react';
 import { 
   DiagnosticReport, 
@@ -39,7 +40,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
     hospitalName: HOSPITAL_LIST[0],
     sampleType: 'Blood',
     labTechnician: 'C.A.D.D.L ,ALLAGADDA',
-    assistantDirector: 'DR.M.Y.VARAPRASAD',
+    assistantDirector: 'Dr. C. H. Chandra Mohan Reddy',
     mandal: 'Allagadda',
     district: 'Nandyal',
     dateOfCollection: new Date().toISOString().split('T')[0],
