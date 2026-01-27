@@ -21,15 +21,14 @@ export interface CategorizedTests {
 
 export interface DiagnosticReport {
   id: string;
-  // 2. Farmer / Owner Details
   farmerName: string;
+  fatherName?: string;
   village: string;
   mandal: string;
   district: string;
   mobileNumber: string;
   farmerId?: string;
-  // 3. Animal Details
-  animalId: string; // Tag No
+  animalId: string;
   species: Species;
   breed: string;
   age: string;
@@ -38,24 +37,30 @@ export interface DiagnosticReport {
   pregnancyStatus: string;
   lactationStage: string;
   clinicalHistory: string;
-  // 4. Sample Details
   sampleType: string;
   sampleId: string;
   dateOfCollection: string;
   collectionTime: string;
   collectedBy: string;
   sampleCondition: string;
-  // Lab Info
   dateOfReport: string;
   hospitalName: string;
   referringDoctor: string;
   assistantDirector: string;
   labTechnician: string;
-  // 5. Results & 7. Interpretation
   categorizedResults: CategorizedTests;
-  conciseSummary: string; // Diagnosis hints
-  otherRemarks: string; // Abnormal findings & follow-up advice
+  conciseSummary: string;
+  otherRemarks: string;
   status: 'Pending' | 'Completed';
+}
+
+export interface GalleryItem {
+  id: string;
+  url: string;
+  caption: string;
+  category: string; // e.g., 'Parasite', 'Equipment', 'Sample'
+  date: string;
+  aiAnalyzed: boolean;
 }
 
 export interface ConsultationRequest {
@@ -69,4 +74,4 @@ export interface ConsultationRequest {
   createdAt: string;
 }
 
-export type View = 'dashboard' | 'new-report' | 'reports-list' | 'consultations' | 'settings';
+export type View = 'dashboard' | 'new-report' | 'reports-list' | 'consultations' | 'gallery' | 'settings';

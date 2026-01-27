@@ -5,6 +5,7 @@ import Dashboard from './components/Dashboard';
 import ReportForm from './components/ReportForm';
 import ReportList from './components/ReportList';
 import ConsultationManager from './components/ConsultationManager';
+import Gallery from './components/Gallery';
 import Navbar from './components/Navbar';
 import LoginPage from './components/LoginPage';
 import { LAB_NAME, HOSPITAL_LIST, GOVT_NAME, DEPT_NAME } from './constants';
@@ -28,7 +29,6 @@ const App: React.FC = () => {
           const parsed = JSON.parse(savedReports);
           if (Array.isArray(parsed)) setReports(parsed);
         } else {
-          // Initialize with dummy data matching the NEW veterinary schema
           const dummy: DiagnosticReport[] = [{
             id: 'LAB-AGD-2113',
             farmerName: 'K. Venkata Reddy',
@@ -55,7 +55,7 @@ const App: React.FC = () => {
             hospitalName: HOSPITAL_LIST[0],
             referringDoctor: 'Dr. Ramesh Kumar',
             assistantDirector: 'Dr. C. H. Chandra Mohan Reddy',
-            labTechnician: 'C.A.D.D.L ,ALLAGADDA',
+            labTechnician: 'S BALARAJU',
             status: 'Completed',
             conciseSummary: 'Suspected Gastrointestinal Parasitism & Mild Deficiency.',
             otherRemarks: 'Hemoglobin and PCV levels are borderline. Fecal examination suggested for further confirmation of parasitic load. Recommend immediate mineral supplementation.',
@@ -122,7 +122,7 @@ const App: React.FC = () => {
   };
 
   const handleBackup = () => {
-    const data = { reports, consultations };
+    const data = { reports, consultations, gallery: JSON.parse(localStorage.getItem('caddl_gallery') || '[]') };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -146,6 +146,9 @@ const App: React.FC = () => {
           if (data.consultations) {
             setConsultations(data.consultations);
             localStorage.setItem('caddl_consultations', JSON.stringify(data.consultations));
+          }
+          if (data.gallery) {
+             localStorage.setItem('caddl_gallery', JSON.stringify(data.gallery));
           }
           alert("Database successfully restored.");
         }
@@ -201,6 +204,7 @@ const App: React.FC = () => {
             onDeleteConsultation={deleteConsultation}
           />
         )}
+        {activeView === 'gallery' && <Gallery />}
       </main>
 
       <footer className="bg-black text-white border-t-4 border-green-700 py-6 text-center text-sm no-print">

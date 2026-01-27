@@ -29,17 +29,18 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
   const [formData, setFormData] = useState<Partial<DiagnosticReport>>({
     id: `AGD-${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
     farmerName: '',
+    fatherName: '',
     village: '',
     mobileNumber: '',
     animalId: '',
     species: 'Bovine',
-    breed: '',
+    breed: BREEDS_BY_SPECIES['Bovine'][0],
     age: '',
     sex: 'Female',
     referringDoctor: DOCTOR_LIST[0],
     hospitalName: HOSPITAL_LIST[0],
     sampleType: 'Blood',
-    labTechnician: 'C.A.D.D.L ,ALLAGADDA',
+    labTechnician: 'S BALARAJU',
     assistantDirector: 'Dr. C. H. Chandra Mohan Reddy',
     mandal: 'Allagadda',
     district: 'Nandyal',
@@ -67,6 +68,16 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
     normalRange: '',
     method: ''
   });
+
+  const handleSpeciesChange = (val: string) => {
+    const selectedSpecies = val.split(' ')[0] as Species;
+    const defaultBreed = BREEDS_BY_SPECIES[selectedSpecies]?.[0] || '';
+    setFormData({
+      ...formData, 
+      species: selectedSpecies,
+      breed: defaultBreed
+    });
+  };
 
   const isMasterSelected = useMemo(() => 
     MASTER_TEST_LIST.some(t => t.name.toLowerCase() === currentTestEntry.testName.toLowerCase()),
@@ -164,11 +175,16 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                 <div className="h-4 w-1.5 bg-blue-900 rounded-full"></div>
                 <span className="text-[11px] font-black text-blue-900 uppercase tracking-widest">Farmer & Owner Details</span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Farmer Name *</label>
                   <input required type="text" className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold uppercase transition-all shadow-sm"
                     placeholder="FULL NAME" value={formData.farmerName} onChange={e => setFormData({...formData, farmerName: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Father / Former Name</label>
+                  <input type="text" className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold uppercase transition-all shadow-sm"
+                    placeholder="S/o OR FORMER NAME" value={formData.fatherName} onChange={e => setFormData({...formData, fatherName: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Cell Number</label>
@@ -198,7 +214,7 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Species</label>
                   <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
-                    value={formData.species} onChange={e => setFormData({...formData, species: e.target.value as Species})}>
+                    value={formData.species} onChange={e => handleSpeciesChange(e.target.value)}>
                     {SPECIES_LIST.map(s => <option key={s} value={s.split(' ')[0]}>{s}</option>)}
                   </select>
                 </div>
@@ -206,7 +222,6 @@ const ReportForm: React.FC<ReportFormProps> = ({ onSave }) => {
                   <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-1">Breed Name</label>
                   <select className="w-full p-4 bg-white border-2 border-slate-200 rounded-2xl focus:border-blue-900 outline-none font-bold transition-all shadow-sm"
                     value={formData.breed} onChange={e => setFormData({...formData, breed: e.target.value})}>
-                    <option value="">Select Breed</option>
                     {availableBreeds.map(b => <option key={b} value={b}>{b}</option>)}
                     <option value="Other">Other / Unknown</option>
                   </select>

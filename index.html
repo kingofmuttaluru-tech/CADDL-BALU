@@ -10,28 +10,43 @@
     <!-- html2pdf.js for high-quality PDF downloads -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
+        * { box-sizing: border-box; -webkit-print-color-adjust: exact; }
         body { font-family: 'Inter', sans-serif; margin: 0; padding: 0; background: #f0f4f8; }
         
-        /* A4 Layout - Exactly 210mm width. Height is flexible on screen but forced on print */
+        /* Fixed A4 Structure for PDF Consistency */
         .pdf-canvas-wrapper {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            background: white;
-            position: relative;
-            box-sizing: border-box;
+            width: 820px; 
+            margin: 20px auto;
+            background: #cbd5e1;
+            padding: 15px; /* Outer "bleeding" area for preview */
             display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         }
 
-        .pdf-inner-content {
-            padding: 10mm !important;
-            width: 100%;
+        .pdf-page-content {
+            width: 210mm; /* A4 Standard mm */
+            height: 297mm; /* A4 Standard mm */
+            background: white;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            border: 20pt solid black; /* THE PROMINENT THICK BORDER */
+            overflow: hidden; /* Enforces single page */
+            margin: 0 auto;
+            page-break-after: always;
+        }
+
+        .pdf-inner-padding {
+            padding: 30px 40px !important;
             flex: 1;
             display: flex;
             flex-direction: column;
+            position: relative;
             box-sizing: border-box;
+            overflow: hidden;
         }
 
         @media print {
@@ -40,19 +55,20 @@
                 background: white !important; 
                 margin: 0 !important; 
                 padding: 0 !important;
-                width: 210mm !important;
-                height: 297mm !important;
-                overflow: hidden !important;
             }
             .pdf-canvas-wrapper { 
-                width: 210mm !important; 
-                height: 297mm !important;
+                width: 100% !important;
                 box-shadow: none !important;
                 margin: 0 !important;
-                border: none !important;
-                page-break-after: avoid !important;
-                page-break-before: avoid !important;
-                page-break-inside: avoid !important;
+                padding: 0 !important;
+                background: white;
+            }
+            .pdf-page-content {
+                width: 210mm !important;
+                height: 297mm !important;
+                border: 20pt solid black !important;
+                margin: 0 !important;
+                box-shadow: none !important;
             }
             @page {
                 size: A4 portrait;
@@ -63,17 +79,15 @@
         .nabl-table {
             width: 100%;
             border-collapse: collapse;
-            border: 1.5px solid #000;
+            border: 1.2pt solid #000;
             table-layout: fixed;
         }
         .nabl-table th, .nabl-table td {
-            border: 1px solid #000;
-            padding: 4px 6px;
+            border: 0.8pt solid #000;
+            padding: 5px 10px;
             font-size: 8.5pt;
             line-height: 1.2;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            word-wrap: break-word;
         }
         .nabl-table th {
             background-color: #f1f5f9;
@@ -81,13 +95,9 @@
             font-weight: 900;
             color: #000;
             font-size: 7.5pt;
+            letter-spacing: 0.05em;
         }
         
-        * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-        }
-
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; }
         ::-webkit-scrollbar-thumb { background: #1e3a8a; border-radius: 3px; }
