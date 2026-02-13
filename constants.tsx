@@ -1,3 +1,4 @@
+
 import React from 'react';
 
 export const LAB_NAME = "CONSTITUENCY ANIMAL DISEASE DIAGNOSTIC LABORATORY (CADDL)";
@@ -8,6 +9,8 @@ export const GOVT_NAME = "GOVERNMENT OF ANDHRA PRADESH";
 export const DEPT_NAME = "DEPARTMENT OF ANIMAL HUSBANDRY";
 
 export const HOSPITAL_LIST = [
+  'AVH Rudravaram',
+  'VD Rudravaram',
   'VD Peraipalle',
   'VD P. Chinthakunta',
   'VD Dornipadu',
@@ -16,6 +19,8 @@ export const HOSPITAL_LIST = [
 ];
 
 export const DOCTOR_LIST = [
+  'Dr. M Pratap (A.D. Rudravaram)',
+  'Dr. M Pratap (V.A.S.)',
   'Dr. Y Mahendra (V.A.S.)',
   'Dr. D Srikala (V.A.S.)',
   'Dr. D Chinna Babu (V.A.S.)',

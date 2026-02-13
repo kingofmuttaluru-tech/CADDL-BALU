@@ -3,5 +3,6 @@
   "description": "Professional veterinary diagnostic laboratory management system for Constituency Animal Disease Diagnostic Laboratory, featuring NABL/ISO certified report generation, comprehensive test management, and AI-assisted clinical insights.",
   "requestFramePermissions": [
     "camera"
-  ]
+  ],
+  "aiModelVersion": "gemini-3-pro-preview"
 }

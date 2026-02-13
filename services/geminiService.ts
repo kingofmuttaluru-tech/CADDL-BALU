@@ -4,6 +4,7 @@ import { DiagnosticReport, LabTestEntry } from "../types";
 export interface AIAnalysisResponse {
   detailedAnalysis: string;
   conciseSummary: string;
+  recommendations: string[];
 }
 
 export interface AIChartData {
@@ -41,9 +42,13 @@ export const getAIInsights = async (report: Partial<DiagnosticReport>): Promise<
       : 'No laboratory findings provided.';
 
     const prompt = `Act as a Senior Veterinary Pathologist at CADDL, Allagadda. Analyze findings for a ${report.species} (${report.breed}, ${report.age}). 
-    Context: Allagadda/Nandyal endemic diseases include HS, BQ, PPR, and mineral deficiencies.
+    Context: Allagadda/Nandyal endemic diseases include Hemorrhagic Septicemia (HS), Black Quarter (BQ), Peste des Petits Ruminants (PPR), and regional mineral deficiencies.
     FINDINGS: ${findingsText}
-    Return JSON: {detailedAnalysis: string, conciseSummary: string}`;
+    Task: 
+    1. Provide a detailed clinical analysis of the laboratory findings.
+    2. Provide a concise summary of the primary diagnosis or differential diagnosis.
+    3. Provide evidence-based treatment or management recommendations specifically tailored to the ${report.species} species and the identified pathological findings.
+    Return JSON: {detailedAnalysis: string, conciseSummary: string, recommendations: string[]}`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-preview',
@@ -54,20 +59,34 @@ export const getAIInsights = async (report: Partial<DiagnosticReport>): Promise<
           type: Type.OBJECT,
           properties: {
             detailedAnalysis: { type: Type.STRING },
-            conciseSummary: { type: Type.STRING }
+            conciseSummary: { type: Type.STRING },
+            recommendations: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING },
+              description: "Evidence-based veterinary treatment or management steps."
+            }
           },
-          required: ["detailedAnalysis", "conciseSummary"]
+          required: ["detailedAnalysis", "conciseSummary", "recommendations"]
         }
       },
     });
 
     const result = JSON.parse(response.text || '{}');
+    const formattedRecommendations = (result.recommendations || [])
+      .map((r: string) => `• ${r}`)
+      .join('\n');
+
     return {
-      detailedAnalysis: `${result.detailedAnalysis}\n\n--- CLINICAL SUMMARY ---\n${result.conciseSummary}`,
-      conciseSummary: result.conciseSummary
+      detailedAnalysis: `${result.detailedAnalysis}\n\n--- CLINICAL SUMMARY ---\n${result.conciseSummary}\n\n--- TREATMENT & MANAGEMENT ---\n${formattedRecommendations || 'Follow standard clinical protocols.'}`,
+      conciseSummary: result.conciseSummary,
+      recommendations: result.recommendations || []
     };
   } catch (error) {
-    return { detailedAnalysis: "Error generating analysis.", conciseSummary: "Manual review required." };
+    return { 
+      detailedAnalysis: "Error generating analysis.", 
+      conciseSummary: "Manual review required.",
+      recommendations: ["Consult with senior veterinarian immediately."]
+    };
   }
 };
 

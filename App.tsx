@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { View, DiagnosticReport, ConsultationRequest } from './types';
 import Dashboard from './components/Dashboard';
@@ -29,42 +28,73 @@ const App: React.FC = () => {
           const parsed = JSON.parse(savedReports);
           if (Array.isArray(parsed)) setReports(parsed);
         } else {
+          // COMPREHENSIVE DUMMY REPORT WITH FULL VALUES FOR ALL CATEGORIES
           const dummy: DiagnosticReport[] = [{
-            id: 'LAB-AGD-2113',
-            farmerName: 'K. Venkata Reddy',
-            village: 'Gundupapala',
+            id: 'LAB-AGD-2024-001',
+            farmerName: 'K. RAMA SUBBA REDDY',
+            fatherName: 'S/O K. VENKATA REDDY',
+            village: 'RUDRAVARAM',
             mandal: 'Allagadda',
             district: 'Nandyal',
             mobileNumber: '9533550105',
-            animalId: 'TAG-55410',
+            animalId: 'TAG-554109',
             species: 'Bovine',
             breed: 'Murrah Buffalo',
-            age: '4 Years',
+            age: '5 Years',
             sex: 'Female',
-            bodyWeight: '450',
-            pregnancyStatus: 'Pregnant (5M)',
-            lactationStage: '2nd Lactation',
-            clinicalHistory: 'Gradual loss of appetite and low milk yield for 4 days.',
-            sampleType: 'Blood',
-            sampleId: 'S-101',
-            dateOfCollection: '2024-05-20',
-            collectionTime: '08:30',
-            collectedBy: 'Lab Asst. Balu',
+            bodyWeight: '480',
+            pregnancyStatus: 'Non-Pregnant',
+            lactationStage: 'Early Lactation',
+            clinicalHistory: 'Sudden drop in milk yield, off-feed since 2 days, dull appearance. Suspected Mastitis and metabolic disorder.',
+            sampleType: 'Blood, Milk & Urine',
+            sampleId: 'S-10224',
+            dateOfCollection: '2024-05-24',
+            collectionTime: '07:30',
+            collectedBy: 'Balu',
             sampleCondition: 'Fresh',
-            dateOfReport: '2024-05-21',
-            hospitalName: HOSPITAL_LIST[0],
-            referringDoctor: 'Dr. Ramesh Kumar',
+            dateOfReport: '2024-05-25',
+            hospitalName: 'AVH Rudravaram',
+            referringDoctor: 'Dr. M Pratap (A.D. Rudravaram)',
             assistantDirector: 'Dr. C. H. Chandra Mohan Reddy',
             labTechnician: 'S BALARAJU',
             status: 'Completed',
-            conciseSummary: 'Suspected Gastrointestinal Parasitism & Mild Deficiency.',
-            otherRemarks: 'Hemoglobin and PCV levels are borderline. Fecal examination suggested for further confirmation of parasitic load. Recommend immediate mineral supplementation.',
+            conciseSummary: 'CLINICAL MASTITIS WITH HYPOCALCEMIA AND SECONDARY ANEMIA',
+            otherRemarks: 'The blood picture reveals mild normocytic normochromic anemia. Milk examination confirms clinical mastitis (CMT ++). Biochemistry indicates low Serum Calcium. Urine analysis shows mild proteinuria. Immediate parenteral calcium therapy and intramammary antibiotic infusion required. Recommend mineral mix supplementation for 30 days.',
             categorizedResults: {
               clinicalPathology: [
-                { testName: 'Hemoglobin (Hb)', resultValue: '9.2', unit: 'g/dL', normalRange: '8.0 - 15.0', method: 'Sahli\'s' },
-                { testName: 'Packed Cell Volume (PCV)', resultValue: '28', unit: '%', normalRange: '24 - 46' }
+                { testName: 'Hemoglobin (Hb)', resultValue: '8.4', unit: 'g/dL', normalRange: '8.0 - 15.0', method: 'Sahli\'s' },
+                { testName: 'Total RBC Count', resultValue: '5.1', unit: 'million/µL', normalRange: '5 - 10' },
+                { testName: 'Packed Cell Volume (PCV)', resultValue: '26', unit: '%', normalRange: '24 - 46' },
+                { testName: 'Total WBC Count (TLC)', resultValue: '11,400', unit: '/µL', normalRange: '4,000 - 12,000' }
               ],
-              biochemistry: [], pathology: [], microbiology: [], parasitology: [], milkExamination: [], urineAnalysis: [], serology: []
+              biochemistry: [
+                { testName: 'Serum Calcium', resultValue: '7.2', unit: 'mg/dL', normalRange: '8.5 - 11.5' },
+                { testName: 'Phosphorus', resultValue: '4.8', unit: 'mg/dL', normalRange: '4.0 - 7.0' },
+                { testName: 'Serum Creatinine', resultValue: '1.1', unit: 'mg/dL', normalRange: '0.6 - 1.5' },
+                { testName: 'Total Protein', resultValue: '6.8', unit: 'g/dL', normalRange: '6.0 - 8.0' }
+              ],
+              milkExamination: [
+                { testName: 'Milk Fat %', resultValue: '3.8', unit: '%', normalRange: '3.5 - 6.0' },
+                { testName: 'Mastitis (CMT)', resultValue: 'POSITIVE (++)', unit: '-', normalRange: 'Negative' },
+                { testName: 'Lactometer Reading', resultValue: '27', unit: 'CLR', normalRange: '26 - 32' },
+                { testName: 'MBRT', resultValue: '1.5', unit: 'Hours', normalRange: '> 2 hrs' }
+              ],
+              parasitology: [
+                { testName: 'Direct Smear', resultValue: 'NIL', unit: '-', normalRange: 'Absent' },
+                { testName: 'Flotation Test', resultValue: 'NIL', unit: '-', normalRange: 'Absent' }
+              ],
+              urineAnalysis: [
+                { testName: 'Urine pH', resultValue: '7.5', unit: 'pH', normalRange: '6.0 - 8.0' },
+                { testName: 'Urine Protein', resultValue: 'POSITIVE (+)', unit: '-', normalRange: 'Nil' },
+                { testName: 'Urine Sugar', resultValue: 'NIL', unit: '-', normalRange: 'Nil' }
+              ],
+              serology: [
+                { testName: 'Brucellosis (RBPT)', resultValue: 'NEGATIVE', unit: '-', normalRange: 'Negative' }
+              ],
+              microbiology: [
+                { testName: 'Gram Staining', resultValue: 'GRAM +VE COCCI', unit: '-', normalRange: 'Gram +ve / -ve' }
+              ],
+              pathology: []
             }
           }];
           setReports(dummy);
